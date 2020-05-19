@@ -4,11 +4,11 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content class="ion-padding">
   <div class="container">
     <div class="row">
-      <ion-searchbar></ion-searchbar>
-      <ion-button size="small">Search</ion-button>
+      <ion-searchbar #searchbar></ion-searchbar>
+      <ion-button (click)="search(searchbar.value)" size="small">Search</ion-button>
     </div>
   </div>
 </ion-content>
