@@ -16,7 +16,7 @@ export class SearchPage implements OnInit {
   }
 
   search(query: string) {
-    console.log('query: ', query);
+    this.githubSvc.searchUsers(query);
   }
 
 }
