@@ -8,7 +8,24 @@
   <div class="container">
     <div class="row">
       <ion-searchbar #searchbar></ion-searchbar>
-      <ion-button [disabled]="!searchbar.value" (click)="search(searchbar.value)" size="small">Search</ion-button>
+      <ion-button
+        [disabled]="!searchbar.value"
+        (click)="search(searchbar.value)"
+        size="small"
+        >Search</ion-button
+      >
     </div>
+    <ion-list>
+      <ion-item *ngFor="let user of results">
+        <ion-avatar slot="start">
+          <img
+            [src]="user.avatar_url"
+          />
+        </ion-avatar>
+        <ion-label>
+          {{user.login}}
+        </ion-label>
+      </ion-item>
+    </ion-list>
   </div>
 </ion-content>
