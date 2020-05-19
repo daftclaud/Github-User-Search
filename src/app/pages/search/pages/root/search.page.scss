@@ -1,0 +1,16 @@
+.container {
+  margin: auto;
+}
+
+.row {
+    display: flex;
+    ion-button {
+        margin: auto;
+    }
+}
+
+@media only screen and (min-width: 768px) {
+  .container {
+    width: 33%;
+  }
+}
