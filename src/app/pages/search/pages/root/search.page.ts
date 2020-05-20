@@ -11,6 +11,8 @@ export class SearchPage implements OnInit {
   resultCount: number;
   remainingRequests: number;
   results: GitUser[];
+  nextPage: number;
+  lastPage: number;
 
   constructor(private githubSvc: GithubService) {}
 
@@ -31,5 +33,7 @@ export class SearchPage implements OnInit {
     this.resultCount = (res.body as any).total_count;
     this.results = (res.body as any).items;
     const [next, last] = res.headers.get('link').match(regex).map(page => page.split('=')[1]);
+    this.nextPage = +next;
+    this.lastPage = +last;
   }
 }

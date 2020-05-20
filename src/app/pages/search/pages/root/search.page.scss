@@ -9,6 +9,12 @@
     }
 }
 
+ion-toolbar {
+  --padding-start: 20%;
+  --padding-end: 20%;
+  --border-style: none;
+}
+
 @media only screen and (min-width: 768px) {
   .container {
     width: 33%;

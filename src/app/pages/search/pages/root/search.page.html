@@ -18,9 +18,7 @@
     <ion-list>
       <ion-item *ngFor="let user of results">
         <ion-avatar slot="start">
-          <img
-            [src]="user.avatar_url"
-          />
+          <img [src]="user.avatar_url" />
         </ion-avatar>
         <ion-label>
           {{user.login}}
@@ -29,3 +27,22 @@
     </ion-list>
   </div>
 </ion-content>
+
+<ion-footer>
+  <!-- <ion-toolbar *ngIf="results"> -->
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-icon name="chevron-back-outline"></ion-icon>
+    </ion-buttons>
+    <ion-buttons class="ion-justify-content-between">
+      <ion-button>1</ion-button>
+      <ion-button>2</ion-button>
+      <ion-button>3</ion-button>
+      <div style="margin-right: 5px">...</div>
+      <ion-button>last</ion-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-icon name="chevron-forward-outline"></ion-icon>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>
