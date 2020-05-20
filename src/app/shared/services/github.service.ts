@@ -40,7 +40,7 @@ export class GithubService {
 
   constructor(private http: HttpClient) {}
 
-  searchUsers(query: string) {
+  searchUsers(query: string, page?: number) {
     const url = this.baseURL + `/search/users?q=${query}`;
     return this.http.get(url, { observe: 'response' });
   }
