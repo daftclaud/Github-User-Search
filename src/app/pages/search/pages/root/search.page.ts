@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { GithubService, GitUser } from 'src/app/shared/services/github.service';
 import { take } from 'rxjs/operators';
+import { IonContent } from '@ionic/angular';
 
 @Component({
   selector: 'app-search',
@@ -18,6 +19,10 @@ export class SearchPage implements OnInit {
   stepSize = 3;
   bucketIndex = 0;
   lastBucketIndex: number;
+
+  itemHeight: 44;
+
+  @ViewChild(IonContent) content: IonContent;
 
   constructor(private githubSvc: GithubService) {}
 
@@ -59,5 +64,9 @@ export class SearchPage implements OnInit {
       .pipe(take(1))
       .toPromise();
     this.results = this.results.concat((res.body as any).items);
+  }
+
+  goToPage(page: number) {
+    this.content.scrollToPoint(null, this.itemHeight * 30, 1000);
   }
 }
