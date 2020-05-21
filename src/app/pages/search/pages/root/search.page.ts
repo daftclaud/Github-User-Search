@@ -34,10 +34,16 @@ export class SearchPage implements OnInit {
       this.currentPage++;
     }
     const res = await this.githubSvc
-      .searchUsers(this.query, this.currentPage, multiplier ? this.itemsPerPage * multiplier : this.itemsPerPage)
+      .searchUsers(
+        this.query,
+        this.currentPage,
+        multiplier ? this.itemsPerPage * multiplier : this.itemsPerPage
+      )
       .pipe(take(1))
       .toPromise();
-    this.results = this.results ? this.results.concat((res.body as any).items) : (res.body as any).items;
+    this.results = this.results
+      ? this.results.concat((res.body as any).items)
+      : (res.body as any).items;
     return res;
   }
 
@@ -64,16 +70,21 @@ export class SearchPage implements OnInit {
     }
   }
 
-  async next() {
+  async next(event?) {
     await this.getItems(1);
+    if (event) {
+      event.target.complete();
+    }
     if (this.currentPage > this.bucketIndex * this.stepSize + 3) {
       this.bucketIndex++;
     }
-    await this.content.scrollToPoint(
-      null,
-      this.itemHeight * this.itemsPerPage,
-      2000
-    );
+    if (!event) {
+      await this.content.scrollToPoint(
+        null,
+        this.itemHeight * this.itemsPerPage,
+        2000
+      );
+    }
   }
 
   async goToPage(page: number) {
@@ -98,11 +109,7 @@ export class SearchPage implements OnInit {
     const itemsToScroll = diff * this.itemsPerPage;
     const scrollAmount = this.itemHeight * itemsToScroll;
     this.currentPage = page;
-    await this.content.scrollByPoint(
-      null,
-      scrollAmount,
-      2000
-    );
+    await this.content.scrollByPoint(null, scrollAmount, 2000);
   }
 
   private alreadyGotItems(page: number) {
