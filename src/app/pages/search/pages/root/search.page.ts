@@ -81,6 +81,7 @@ export class SearchPage implements OnInit {
     /**
      * If going forward, first check if you already have the items.
      * If going backward, just scroll.
+     * If going to first or last page refresh items
      */
     const diff = page - this.currentPage;
     const direction = diff > 0 ? 1 : -1;
