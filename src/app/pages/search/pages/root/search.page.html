@@ -2,19 +2,19 @@
   <ion-toolbar>
     <ion-title>Search Users</ion-title>
   </ion-toolbar>
+  <div class="row ion-padding">
+    <ion-searchbar #searchbar></ion-searchbar>
+    <ion-button
+      [disabled]="!searchbar.value"
+      (click)="search(searchbar.value)"
+      size="small"
+      >Search</ion-button
+    >
+  </div>
 </ion-header>
 
 <ion-content class="ion-padding">
   <div class="container">
-    <div class="row">
-      <ion-searchbar #searchbar></ion-searchbar>
-      <ion-button
-        [disabled]="!searchbar.value"
-        (click)="search(searchbar.value)"
-        size="small"
-        >Search</ion-button
-      >
-    </div>
     <ion-list>
       <ion-item *ngFor="let user of results">
         <ion-avatar slot="start">
@@ -40,7 +40,7 @@
       <div *ngIf="bucketIndex === lastBucketIndex">...</div>
       <ion-button [ngClass]="{'current': bucketIndex * stepSize + 1 === currentPage}">{{bucketIndex * stepSize + 1}}</ion-button>
       <ion-button [ngClass]="{'current': bucketIndex * stepSize + 2 === currentPage}">{{bucketIndex * stepSize + 2}}</ion-button>
-      <ion-button [ngClass]="{'current': bucketIndex * stepSize + 3 === currentPage}">{{bucketIndex * stepSize + 3}}</ion-button>
+      <ion-button (click)="goToPage(3)" [ngClass]="{'current': bucketIndex * stepSize + 3 === currentPage}">{{bucketIndex * stepSize + 3}}</ion-button>
       <div *ngIf="bucketIndex !== lastBucketIndex">...</div>
       <ion-button *ngIf="bucketIndex !== lastBucketIndex">{{lastPage}}</ion-button>
     </ion-buttons>
