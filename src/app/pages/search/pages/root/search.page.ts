@@ -30,6 +30,9 @@ export class SearchPage implements OnInit {
   ngOnInit() {}
 
   async getItems(multiplier?: number) {
+    if (multiplier) {
+      this.currentPage++;
+    }
     const res = await this.githubSvc
       .searchUsers(this.query, this.currentPage, multiplier ? this.itemsPerPage * multiplier : this.itemsPerPage)
       .pipe(take(1))
@@ -62,11 +65,10 @@ export class SearchPage implements OnInit {
   }
 
   async next() {
-    this.currentPage++;
+    await this.getItems(1);
     if (this.currentPage > this.bucketIndex * this.stepSize + 3) {
       this.bucketIndex++;
     }
-    await this.getItems();
     await this.content.scrollToPoint(
       null,
       this.itemHeight * this.itemsPerPage,
