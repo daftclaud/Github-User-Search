@@ -45,7 +45,7 @@ export class SearchPage implements OnInit {
         - paginate
     */
     this.query = query;
-    const regex = /page=[0-9]+/g;
+    const regex = /&page=[0-9]+/g;
     const res = await this.getItems();
     this.remainingRequests = +res.headers.get('X-RateLimit-Remaining');
     this.resultCount = (res.body as any).total_count;
@@ -94,7 +94,6 @@ export class SearchPage implements OnInit {
     }
     const itemsToScroll = diff * this.itemsPerPage;
     const scrollAmount = this.itemHeight * itemsToScroll;
-    console.log('scrolling by ', itemsToScroll, ' items');
     this.currentPage = page;
     await this.content.scrollByPoint(
       null,
