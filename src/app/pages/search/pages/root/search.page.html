@@ -11,6 +11,9 @@
       >Search</ion-button
     >
   </div>
+  <div *ngIf="remainingRequests" class="ion-text-center ion-padding">
+    {{remainingRequests}} searches remaining
+  </div>
 </ion-header>
 
 <ion-content class="ion-padding">

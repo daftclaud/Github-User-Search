@@ -14,13 +14,14 @@ export class SearchPage implements OnInit {
   remainingRequests: number;
   results: GitUser[];
 
+  itemsPerPage = 30;
   lastPage: number;
   currentPage = 1;
   stepSize = 3;
   bucketIndex = 0;
   lastBucketIndex: number;
 
-  itemHeight: 44;
+  itemHeight = 44;
 
   @ViewChild(IonContent) content: IonContent;
 
@@ -64,9 +65,10 @@ export class SearchPage implements OnInit {
       .pipe(take(1))
       .toPromise();
     this.results = this.results.concat((res.body as any).items);
+    await this.content.scrollToPoint(null, this.itemHeight * 30, 2000);
   }
 
-  goToPage(page: number) {
-    this.content.scrollToPoint(null, this.itemHeight * 30, 1000);
+  async goToPage(page: number) {
+    await this.content.scrollToPoint(null, this.itemHeight * 30, 2000);
   }
 }
