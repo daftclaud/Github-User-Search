@@ -40,8 +40,15 @@ export class GithubService {
 
   constructor(private http: HttpClient) {}
 
-  searchUsers(query: string, page?: number) {
-    const url = page ? this.baseURL + `/search/users?q=${query}&page=${page}` : this.baseURL + `/search/users?q=${query}`;
+  searchUsers(query: string, page?: number, itemsPerPage?: number) {
+    // let url = page ? this.baseURL + `/search/users?q=${query}&page=${page}` : this.baseURL + `/search/users?q=${query}`;
+    let url = this.baseURL + `/search/users?q=${query}`;
+    if (page) {
+      url = url.concat(`&page=${page}`);
+    }
+    if (itemsPerPage) {
+      url = url.concat(`&per_page=${itemsPerPage}`);
+    }
     return this.http.get(url, { observe: 'response' });
   }
 }

@@ -19,7 +19,7 @@
 <ion-content class="ion-padding">
   <div class="container">
     <ion-list>
-      <ion-item *ngFor="let user of results">
+      <ion-item *ngFor="let user of results; let index = index" [ngClass]="{'first': index === ((currentPage - 1) * itemsPerPage)}">
         <ion-avatar slot="start">
           <img [src]="user.avatar_url" />
         </ion-avatar>
@@ -41,9 +41,9 @@
     <ion-buttons class="ion-justify-content-between">
       <ion-button *ngIf="bucketIndex === lastBucketIndex">1</ion-button>
       <div *ngIf="bucketIndex === lastBucketIndex">...</div>
-      <ion-button [ngClass]="{'current': bucketIndex * stepSize + 1 === currentPage}">{{bucketIndex * stepSize + 1}}</ion-button>
-      <ion-button [ngClass]="{'current': bucketIndex * stepSize + 2 === currentPage}">{{bucketIndex * stepSize + 2}}</ion-button>
-      <ion-button (click)="goToPage(3)" [ngClass]="{'current': bucketIndex * stepSize + 3 === currentPage}">{{bucketIndex * stepSize + 3}}</ion-button>
+      <ion-button (click)="goToPage(bucketIndex * stepSize + 1)" [ngClass]="{'current': bucketIndex * stepSize + 1 === currentPage}">{{bucketIndex * stepSize + 1}}</ion-button>
+      <ion-button (click)="goToPage(bucketIndex * stepSize + 2)" [ngClass]="{'current': bucketIndex * stepSize + 2 === currentPage}">{{bucketIndex * stepSize + 2}}</ion-button>
+      <ion-button (click)="goToPage(bucketIndex * stepSize + 3)" [ngClass]="{'current': bucketIndex * stepSize + 3 === currentPage}">{{bucketIndex * stepSize + 3}}</ion-button>
       <div *ngIf="bucketIndex !== lastBucketIndex">...</div>
       <ion-button *ngIf="bucketIndex !== lastBucketIndex">{{lastPage}}</ion-button>
     </ion-buttons>

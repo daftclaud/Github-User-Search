@@ -29,6 +29,15 @@ export class SearchPage implements OnInit {
 
   ngOnInit() {}
 
+  async getItems(multiplier?: number) {
+    const res = await this.githubSvc
+      .searchUsers(this.query, this.currentPage, multiplier ? this.itemsPerPage * multiplier : this.itemsPerPage)
+      .pipe(take(1))
+      .toPromise();
+    this.results = this.results ? this.results.concat((res.body as any).items) : (res.body as any).items;
+    return res;
+  }
+
   async search(query: string) {
     /*
       To-do:
@@ -37,10 +46,7 @@ export class SearchPage implements OnInit {
     */
     this.query = query;
     const regex = /page=[0-9]+/g;
-    const res = await this.githubSvc
-      .searchUsers(query)
-      .pipe(take(1))
-      .toPromise();
+    const res = await this.getItems();
     this.remainingRequests = +res.headers.get('X-RateLimit-Remaining');
     this.resultCount = (res.body as any).total_count;
     this.results = (res.body as any).items;
@@ -60,15 +66,44 @@ export class SearchPage implements OnInit {
     if (this.currentPage > this.bucketIndex * this.stepSize + 3) {
       this.bucketIndex++;
     }
-    const res = await this.githubSvc
-      .searchUsers(this.query, this.currentPage)
-      .pipe(take(1))
-      .toPromise();
-    this.results = this.results.concat((res.body as any).items);
-    await this.content.scrollToPoint(null, this.itemHeight * 30, 2000);
+    await this.getItems();
+    await this.content.scrollToPoint(
+      null,
+      this.itemHeight * this.itemsPerPage,
+      2000
+    );
   }
 
   async goToPage(page: number) {
-    await this.content.scrollToPoint(null, this.itemHeight * 30, 2000);
+    if (page === this.currentPage) {
+      return;
+    }
+    /**
+     * If going forward, first check if you already have the items.
+     * If going backward, just scroll.
+     */
+    const diff = page - this.currentPage;
+    const direction = diff > 0 ? 1 : -1;
+    if (direction > 0) {
+      // Going forward
+      if (!this.alreadyGotItems(page)) {
+        console.log('getting more');
+        this.currentPage = page;
+        await this.getItems(diff);
+      }
+    }
+    const itemsToScroll = diff * this.itemsPerPage;
+    const scrollAmount = this.itemHeight * itemsToScroll;
+    console.log('scrolling by ', itemsToScroll, ' items');
+    this.currentPage = page;
+    await this.content.scrollByPoint(
+      null,
+      scrollAmount,
+      2000
+    );
+  }
+
+  private alreadyGotItems(page: number) {
+    return this.results.length >= this.itemsPerPage * page;
   }
 }
