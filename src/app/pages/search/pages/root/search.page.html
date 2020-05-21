@@ -32,17 +32,23 @@
   <!-- <ion-toolbar *ngIf="results"> -->
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-icon name="chevron-back-outline"></ion-icon>
+      <ion-button [disabled]="currentPage === 1" (click)="previous()">
+        <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
+      </ion-button>
     </ion-buttons>
     <ion-buttons class="ion-justify-content-between">
-      <ion-button>1</ion-button>
-      <ion-button>2</ion-button>
-      <ion-button>3</ion-button>
-      <div style="margin-right: 5px">...</div>
-      <ion-button>last</ion-button>
+      <ion-button *ngIf="bucketIndex === lastBucketIndex">1</ion-button>
+      <div *ngIf="bucketIndex === lastBucketIndex">...</div>
+      <ion-button [ngClass]="{'current': bucketIndex * stepSize + 1 === currentPage}">{{bucketIndex * stepSize + 1}}</ion-button>
+      <ion-button [ngClass]="{'current': bucketIndex * stepSize + 2 === currentPage}">{{bucketIndex * stepSize + 2}}</ion-button>
+      <ion-button [ngClass]="{'current': bucketIndex * stepSize + 3 === currentPage}">{{bucketIndex * stepSize + 3}}</ion-button>
+      <div *ngIf="bucketIndex !== lastBucketIndex">...</div>
+      <ion-button *ngIf="bucketIndex !== lastBucketIndex">{{lastPage}}</ion-button>
     </ion-buttons>
     <ion-buttons slot="end">
-      <ion-icon name="chevron-forward-outline"></ion-icon>
+      <ion-button [disabled]="currentPage === lastPage" (click)="next()">
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+      </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-footer>
