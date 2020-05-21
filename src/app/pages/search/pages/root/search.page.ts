@@ -8,15 +8,16 @@ import { take } from 'rxjs/operators';
   styleUrls: ['./search.page.scss'],
 })
 export class SearchPage implements OnInit {
+  query: string;
   resultCount: number;
   remainingRequests: number;
   results: GitUser[];
 
+  lastPage: number;
   currentPage = 1;
-  lastPage = 9;
   stepSize = 3;
-  lastBucketIndex = 2;
   bucketIndex = 0;
+  lastBucketIndex: number;
 
   constructor(private githubSvc: GithubService) {}
 
@@ -28,6 +29,7 @@ export class SearchPage implements OnInit {
         - add try/catch
         - paginate
     */
+    this.query = query;
     const regex = /page=[0-9]+/g;
     const res = await this.githubSvc
       .searchUsers(query)
@@ -37,19 +39,25 @@ export class SearchPage implements OnInit {
     this.resultCount = (res.body as any).total_count;
     this.results = (res.body as any).items;
     this.lastPage = +res.headers.get('link').match(regex)[1].split('=')[1];
+    this.lastBucketIndex = Math.ceil(this.resultCount / this.stepSize) - 1;
   }
 
   previous() {
     this.currentPage--;
-    if (this.currentPage < (this.bucketIndex * this.stepSize + 1)) {
+    if (this.currentPage < this.bucketIndex * this.stepSize + 1) {
       this.bucketIndex--;
     }
   }
 
-  next() {
+  async next() {
     this.currentPage++;
-    if (this.currentPage > (this.bucketIndex * this.stepSize + 3)) {
+    if (this.currentPage > this.bucketIndex * this.stepSize + 3) {
       this.bucketIndex++;
     }
+    const res = await this.githubSvc
+      .searchUsers(this.query, this.currentPage)
+      .pipe(take(1))
+      .toPromise();
+    this.results = this.results.concat((res.body as any).items);
   }
 }

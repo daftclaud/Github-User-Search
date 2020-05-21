@@ -29,8 +29,7 @@
 </ion-content>
 
 <ion-footer>
-  <!-- <ion-toolbar *ngIf="results"> -->
-  <ion-toolbar>
+  <ion-toolbar *ngIf="results">
     <ion-buttons slot="start">
       <ion-button [disabled]="currentPage === 1" (click)="previous()">
         <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
