@@ -48,6 +48,7 @@ export class SearchPage implements OnInit {
     return res;
   }
 
+  // To-do: debounce search button
   async search(query: string) {
     /*
       To-do:
@@ -62,7 +63,7 @@ export class SearchPage implements OnInit {
     this.results = (res.body as any).items;
     const linkHeader = res.headers.get('link');
     this.lastPage = linkHeader ? +linkHeader.match(regex)[1].split('=')[1] : null;
-    this.lastBucketIndex = Math.ceil(this.resultCount / this.stepSize) - 1;
+    this.lastBucketIndex = Math.ceil(this.lastPage / this.stepSize) - 1;
   }
 
   async previous() {
@@ -99,7 +100,6 @@ export class SearchPage implements OnInit {
      */
     if (page === this.lastPage) {
       this.currentPage = this.lastPage;
-      console.log(this.lastBucketIndex);
       this.bucketIndex = this.lastBucketIndex;
       this.results = null;
       this.getItems();
