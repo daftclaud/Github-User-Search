@@ -103,6 +103,11 @@ export class SearchPage implements OnInit {
       this.bucketIndex = this.lastBucketIndex;
       this.results = null;
       this.getItems();
+    } else if (page === 1) {
+      this.currentPage = 1;
+      this.bucketIndex = 0;
+      this.results = null;
+      this.getItems();
     }
     const diff = page - this.currentPage;
     const direction = diff > 0 ? 1 : -1;
