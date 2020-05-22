@@ -17,7 +17,7 @@
   </div>
 </ion-header>
 
-<ion-content class="ion-padding" (ionScrollStart)="infiniteScroll.disabled = true" (ionScrollEnd)="infiniteScroll.disabled = false">
+<ion-content class="ion-padding">
   <div class="container">
     <ion-list>
       <ion-item
@@ -56,7 +56,9 @@
       </ion-button>
     </ion-buttons>
     <ion-buttons class="ion-justify-content-between">
-      <ion-button (click)="goToPage(1)" *ngIf="bucketIndex === lastBucketIndex">1</ion-button>
+      <ion-button (click)="goToPage(1)" *ngIf="bucketIndex === lastBucketIndex"
+        >1</ion-button
+      >
       <div *ngIf="bucketIndex === lastBucketIndex">...</div>
 
       <div *ngIf="bucketIndex !== lastBucketIndex; else lastBucket">

@@ -24,7 +24,6 @@ export class SearchPage implements OnInit {
   itemHeight = 44;
 
   @ViewChild(IonContent) content: IonContent;
-  @ViewChild(IonInfiniteScroll) infiniteScroll: IonInfiniteScroll;
 
   constructor(private githubSvc: GithubService) {}
 
@@ -35,9 +34,10 @@ export class SearchPage implements OnInit {
    */
 
   getFirstItemIndex() {
-    const index = !(this.results.length % this.itemsPerPage) ?
-    Math.floor((this.results.length - 1) / this.itemsPerPage) * this.itemsPerPage :
-    Math.floor(this.results.length / this.itemsPerPage) * this.itemsPerPage;
+    const index = !(this.results.length % this.itemsPerPage)
+      ? Math.floor((this.results.length - 1) / this.itemsPerPage) *
+        this.itemsPerPage
+      : Math.floor(this.results.length / this.itemsPerPage) * this.itemsPerPage;
     return index;
   }
 
@@ -61,27 +61,17 @@ export class SearchPage implements OnInit {
      */
     if (multiplier && items.length < this.itemsPerPage * multiplier) {
       const pt1 = await this.githubSvc
-      .searchUsers(
-        this.query,
-        this.currentPage - 1,
-        this.itemsPerPage
-      )
-      .pipe(take(1))
-      .toPromise();
+        .searchUsers(this.query, this.currentPage - 1, this.itemsPerPage)
+        .pipe(take(1))
+        .toPromise();
       const pt2 = await this.githubSvc
-      .searchUsers(
-        this.query,
-        this.currentPage,
-        this.itemsPerPage
-      )
-      .pipe(take(1))
-      .toPromise();
+        .searchUsers(this.query, this.currentPage, this.itemsPerPage)
+        .pipe(take(1))
+        .toPromise();
       items = (pt1.body as any).items.concat((pt2.body as any).items);
     }
     this.remainingRequests = +res.headers.get('X-RateLimit-Remaining');
-    this.results = this.results
-      ? this.results.concat(items)
-      : items;
+    this.results = this.results ? this.results.concat(items) : items;
     return res;
   }
 
@@ -92,7 +82,9 @@ export class SearchPage implements OnInit {
         - add try/catch
         - paginate
     */
-    if (this.query && this.query === query) { return; }
+    if (this.query && this.query === query) {
+      return;
+    }
     this.currentPage = 1;
     this.query = query;
     const regex = /&page=[0-9]+/g;
@@ -101,7 +93,9 @@ export class SearchPage implements OnInit {
     this.resultCount = (res.body as any).total_count;
     this.results = (res.body as any).items;
     const linkHeader = res.headers.get('link');
-    this.lastPage = linkHeader ? +linkHeader.match(regex)[1].split('=')[1] : null;
+    this.lastPage = linkHeader
+      ? +linkHeader.match(regex)[1].split('=')[1]
+      : null;
     this.lastBucketIndex = Math.ceil(this.lastPage / this.stepSize) - 1;
     await this.content.scrollToTop();
   }
