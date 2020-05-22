@@ -140,29 +140,28 @@ export class SearchPage implements OnInit {
      */
     if (page === this.lastPage) {
       this.currentPage = this.lastPage;
-      console.log(this.currentPage);
       this.bucketIndex = this.lastBucketIndex;
       this.results = null;
       await this.getItems();
+      await this.content.scrollToTop();
     } else if (this.bucketIndex > 0 && page === 1) {
       this.currentPage = 1;
       this.bucketIndex = 0;
       this.results = null;
       await this.getItems();
+      await this.content.scrollToTop();
     }
     const diff = page - this.currentPage;
     const direction = diff > 0 ? 1 : -1;
     if (direction > 0) {
       // Going forward
       if (!this.alreadyGotItems(page)) {
-        console.log('getting more');
         this.currentPage = page;
         await this.getItems(diff);
       }
     }
     const itemsToScroll = diff * this.itemsPerPage;
     const scrollAmount = this.itemHeight * itemsToScroll;
-    console.log('scrolling by ', itemsToScroll, ' items');
     this.currentPage = page;
     await this.content.scrollByPoint(null, scrollAmount, 2000);
   }
