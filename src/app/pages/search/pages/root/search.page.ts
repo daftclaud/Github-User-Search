@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { GithubService, GitUser } from 'src/app/shared/services/github.service';
 import { take } from 'rxjs/operators';
-import { IonContent } from '@ionic/angular';
+import { IonContent, IonInfiniteScroll } from '@ionic/angular';
 
 @Component({
   selector: 'app-search',
@@ -24,6 +24,7 @@ export class SearchPage implements OnInit {
   itemHeight = 44;
 
   @ViewChild(IonContent) content: IonContent;
+  @ViewChild(IonInfiniteScroll) infiniteScroll: IonInfiniteScroll;
 
   constructor(private githubSvc: GithubService) {}
 
@@ -41,10 +42,35 @@ export class SearchPage implements OnInit {
       )
       .pipe(take(1))
       .toPromise();
+    let items = (res.body as any).items;
+
+    /**
+     * This takes care of a 'bug' where the github api returns less items than it was asked for.
+     * It usually happens when there aren't many results (~300)
+     */
+    if (items.length < this.itemsPerPage * 2) {
+      const pt1 = await this.githubSvc
+      .searchUsers(
+        this.query,
+        this.currentPage - 1,
+        this.itemsPerPage
+      )
+      .pipe(take(1))
+      .toPromise();
+      const pt2 = await this.githubSvc
+      .searchUsers(
+        this.query,
+        this.currentPage,
+        this.itemsPerPage
+      )
+      .pipe(take(1))
+      .toPromise();
+      items = (pt1.body as any).items.concat((pt2.body as any).items);
+    }
     this.remainingRequests = +res.headers.get('X-RateLimit-Remaining');
     this.results = this.results
-      ? this.results.concat((res.body as any).items)
-      : (res.body as any).items;
+      ? this.results.concat(items)
+      : items;
     return res;
   }
 
@@ -55,6 +81,8 @@ export class SearchPage implements OnInit {
         - add try/catch
         - paginate
     */
+    if (this.query && this.query === query) { return; }
+    this.currentPage = 1;
     this.query = query;
     const regex = /&page=[0-9]+/g;
     const res = await this.getItems();
@@ -64,6 +92,7 @@ export class SearchPage implements OnInit {
     const linkHeader = res.headers.get('link');
     this.lastPage = linkHeader ? +linkHeader.match(regex)[1].split('=')[1] : null;
     this.lastBucketIndex = Math.ceil(this.lastPage / this.stepSize) - 1;
+    await this.content.scrollToTop();
   }
 
   async previous() {
@@ -102,12 +131,12 @@ export class SearchPage implements OnInit {
       this.currentPage = this.lastPage;
       this.bucketIndex = this.lastBucketIndex;
       this.results = null;
-      this.getItems();
-    } else if (page === 1) {
+      await this.getItems();
+    } else if (this.bucketIndex > 0 && page === 1) {
       this.currentPage = 1;
       this.bucketIndex = 0;
       this.results = null;
-      this.getItems();
+      await this.getItems();
     }
     const diff = page - this.currentPage;
     const direction = diff > 0 ? 1 : -1;
@@ -118,11 +147,14 @@ export class SearchPage implements OnInit {
         this.currentPage = page;
         await this.getItems(diff);
       }
+      this.infiniteScroll.disabled = true;
     }
     const itemsToScroll = diff * this.itemsPerPage;
     const scrollAmount = this.itemHeight * itemsToScroll;
+    console.log('scrolling by ', itemsToScroll, ' items');
     this.currentPage = page;
     await this.content.scrollByPoint(null, scrollAmount, 2000);
+    // this.infiniteScroll.disabled = false;
   }
 
   private alreadyGotItems(page: number) {
