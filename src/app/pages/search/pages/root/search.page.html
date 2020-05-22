@@ -53,7 +53,7 @@
       <ion-button (click)="goToPage(bucketIndex * stepSize + 2)" [ngClass]="{'current': bucketIndex * stepSize + 2 === currentPage}">{{bucketIndex * stepSize + 2}}</ion-button>
       <ion-button (click)="goToPage(bucketIndex * stepSize + 3)" [ngClass]="{'current': bucketIndex * stepSize + 3 === currentPage}">{{bucketIndex * stepSize + 3}}</ion-button>
       <div *ngIf="bucketIndex !== lastBucketIndex">...</div>
-      <ion-button *ngIf="bucketIndex !== lastBucketIndex">{{lastPage}}</ion-button>
+      <ion-button (click)="goToPage(lastPage)" *ngIf="bucketIndex !== lastBucketIndex">{{lastPage}}</ion-button>
     </ion-buttons>
     <ion-buttons slot="end">
       <ion-button [disabled]="currentPage === lastPage" (click)="next()">

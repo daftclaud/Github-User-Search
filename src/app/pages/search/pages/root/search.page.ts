@@ -60,7 +60,8 @@ export class SearchPage implements OnInit {
     this.remainingRequests = +res.headers.get('X-RateLimit-Remaining');
     this.resultCount = (res.body as any).total_count;
     this.results = (res.body as any).items;
-    this.lastPage = +res.headers.get('link').match(regex)[1].split('=')[1];
+    const linkHeader = res.headers.get('link');
+    this.lastPage = linkHeader ? +linkHeader.match(regex)[1].split('=')[1] : null;
     this.lastBucketIndex = Math.ceil(this.resultCount / this.stepSize) - 1;
   }
 
@@ -96,6 +97,13 @@ export class SearchPage implements OnInit {
      * If going backward, just scroll.
      * If going to first or last page refresh items
      */
+    if (page === this.lastPage) {
+      this.currentPage = this.lastPage;
+      console.log(this.lastBucketIndex);
+      this.bucketIndex = this.lastBucketIndex;
+      this.results = null;
+      this.getItems();
+    }
     const diff = page - this.currentPage;
     const direction = diff > 0 ? 1 : -1;
     if (direction > 0) {
