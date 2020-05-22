@@ -22,7 +22,7 @@
     <ion-list>
       <ion-item
         *ngFor="let user of results; let index = index"
-        [ngClass]="{'first': index === getFirstItemIndex()}"
+        [ngClass]="{'first': index === (pagesNavigated * itemsPerPage)}"
       >
         <ion-avatar slot="start">
           <img [src]="user.avatar_url" />

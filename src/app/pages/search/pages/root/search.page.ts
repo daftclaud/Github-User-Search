@@ -17,6 +17,7 @@ export class SearchPage implements OnInit {
   itemsPerPage = 30;
   lastPage: number;
   currentPage = 1;
+  pagesNavigated = 0;
   stepSize = 3;
   bucketIndex = 0;
   lastBucketIndex: number;
@@ -32,14 +33,6 @@ export class SearchPage implements OnInit {
   /**
    * no item highlight sometimes
    */
-
-  getFirstItemIndex() {
-    const index = !(this.results.length % this.itemsPerPage)
-      ? Math.floor((this.results.length - 1) / this.itemsPerPage) *
-        this.itemsPerPage
-      : Math.floor(this.results.length / this.itemsPerPage) * this.itemsPerPage;
-    return index;
-  }
 
   async getItems(multiplier?: number) {
     if (multiplier) {
@@ -101,6 +94,8 @@ export class SearchPage implements OnInit {
   }
 
   async previous() {
+    this.pagesNavigated--;
+
     this.currentPage--;
     if (this.currentPage < this.bucketIndex * this.stepSize + 1) {
       this.bucketIndex--;
@@ -110,6 +105,8 @@ export class SearchPage implements OnInit {
   }
 
   async next(event?) {
+    this.pagesNavigated++;
+
     await this.getItems(1);
     if (event) {
       event.target.complete();
@@ -133,12 +130,14 @@ export class SearchPage implements OnInit {
      * If going to first or last page refresh items
      */
     if (page === this.lastPage) {
+      this.pagesNavigated = 0;
       this.currentPage = this.lastPage;
       this.bucketIndex = this.lastBucketIndex;
       this.results = null;
       await this.getItems();
       await this.content.scrollToTop();
     } else if (this.bucketIndex > 0 && page === 1) {
+      this.pagesNavigated = 0;
       this.currentPage = 1;
       this.bucketIndex = 0;
       this.results = null;
@@ -146,7 +145,9 @@ export class SearchPage implements OnInit {
       await this.content.scrollToTop();
     }
     const diff = page - this.currentPage;
+    this.pagesNavigated += diff;
     const direction = diff > 0 ? 1 : -1;
+
     if (direction > 0) {
       // Going forward
       if (!this.alreadyGotItems(page)) {
