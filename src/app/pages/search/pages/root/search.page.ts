@@ -10,18 +10,11 @@ import { IonContent, IonInfiniteScroll } from '@ionic/angular';
 })
 export class SearchPage implements OnInit {
   query: string;
-  resultCount: number;
   remainingRequests: number;
+  resultCount: number;
   results: GitUser[];
 
-  itemsPerPage = 30;
-  lastPage: number;
-  currentPage = 1;
-  pagesNavigated = 0;
-  stepSize = 3;
-  bucketIndex = 0;
-  lastBucketIndex: number;
-
+  usersPerPage = 30;
   itemHeight = 44;
 
   @ViewChild(IonContent) content: IonContent;
@@ -30,152 +23,212 @@ export class SearchPage implements OnInit {
 
   ngOnInit() {}
 
-  /**
-   * no item highlight sometimes
-   */
-
-  async getItems(multiplier?: number, addToFront?: boolean) {
-    if (multiplier) {
-      this.currentPage++;
-    }
+  async getItems(page: number, multiplier?: number, addToFront?: boolean) {
     const res = await this.githubSvc
       .searchUsers(
         this.query,
-        this.currentPage,
-        multiplier ? this.itemsPerPage * multiplier : this.itemsPerPage
+        page,
+        multiplier ? this.usersPerPage * multiplier : this.usersPerPage
       )
       .pipe(take(1))
       .toPromise();
     let items = (res.body as any).items;
+    this.remainingRequests = +res.headers.get('X-RateLimit-Remaining');
 
     /**
      * This takes care of a 'bug' where the github api returns less items than it was asked for.
      * It usually happens when there aren't many results (~300).
      */
-    if (multiplier && items.length < this.itemsPerPage * multiplier) {
+    if (multiplier && items.length < this.usersPerPage * multiplier) {
       const pt1 = await this.githubSvc
-        .searchUsers(this.query, this.currentPage - 1, this.itemsPerPage)
+        .searchUsers(this.query, page - 1, this.usersPerPage)
         .pipe(take(1))
         .toPromise();
       const pt2 = await this.githubSvc
-        .searchUsers(this.query, this.currentPage, this.itemsPerPage)
+        .searchUsers(this.query, page, this.usersPerPage)
         .pipe(take(1))
         .toPromise();
       items = (pt1.body as any).items.concat((pt2.body as any).items);
     }
-    this.remainingRequests = +res.headers.get('X-RateLimit-Remaining');
+
     if (addToFront) {
       this.results.unshift(...items);
       this.results = [...new Set(this.results)]; // removes duplicates
-      console.log('back: ', this.results.length);
     } else {
       this.results = this.results ? this.results.concat(items) : items;
-      console.log('front: ', this.results.length);
     }
     return res;
   }
 
+  // async getItems(multiplier?: number, addToFront?: boolean) {
+  //   if (multiplier) {
+  //     this.currentPage++;
+  //   }
+  //   const res = await this.githubSvc
+  //     .searchUsers(
+  //       this.query,
+  //       this.currentPage,
+  //       multiplier ? this.itemsPerPage * multiplier : this.itemsPerPage
+  //     )
+  //     .pipe(take(1))
+  //     .toPromise();
+  //   let items = (res.body as any).items;
+
+  //   /**
+  //    * This takes care of a 'bug' where the github api returns less items than it was asked for.
+  //    * It usually happens when there aren't many results (~300).
+  //    */
+  //   if (multiplier && items.length < this.itemsPerPage * multiplier) {
+  //     const pt1 = await this.githubSvc
+  //       .searchUsers(this.query, this.currentPage - 1, this.itemsPerPage)
+  //       .pipe(take(1))
+  //       .toPromise();
+  //     const pt2 = await this.githubSvc
+  //       .searchUsers(this.query, this.currentPage, this.itemsPerPage)
+  //       .pipe(take(1))
+  //       .toPromise();
+  //     items = (pt1.body as any).items.concat((pt2.body as any).items);
+  //   }
+  //   this.remainingRequests = +res.headers.get('X-RateLimit-Remaining');
+  //   if (addToFront) {
+  //     this.results.unshift(...items);
+  //     this.results = [...new Set(this.results)]; // removes duplicates
+  //     console.log('back: ', this.results.length);
+  //   } else {
+  //     this.results = this.results ? this.results.concat(items) : items;
+  //     console.log('front: ', this.results.length);
+  //   }
+  //   return res;
+  // }
+
   // To-do: debounce search button
   async search(query: string) {
-    /*
-      To-do:
-        - add try/catch
-        - paginate
-    */
     if (this.query && this.query === query) {
       return;
     }
-    this.currentPage = 1;
     this.query = query;
-    const regex = /&page=[0-9]+/g;
-    const res = await this.getItems();
-    this.remainingRequests = +res.headers.get('X-RateLimit-Remaining');
+    const res = await this.getItems(1);
     this.resultCount = (res.body as any).total_count;
-    this.results = (res.body as any).items;
-    const linkHeader = res.headers.get('link');
-    this.lastPage = linkHeader
-      ? +linkHeader.match(regex)[1].split('=')[1]
-      : null;
-    this.lastBucketIndex = Math.ceil(this.lastPage / this.stepSize) - 1;
-    await this.content.scrollToTop();
-  }
-
-  async previous() {
-    this.currentPage--;
-
-    if (this.results.length < (this.currentPage * this.itemsPerPage)) {
-      this.getItems(null, true);
-    }
-
-    this.pagesNavigated--; // may have to move this
-
-    if (this.currentPage < this.bucketIndex * this.stepSize + 1) { // change logic for decreasing bucketIndex
-      this.bucketIndex--;
-    }
-    const scrollAmount = this.itemHeight * this.itemsPerPage;
-    await this.content.scrollByPoint(null, -scrollAmount, 2000);
-  }
-
-  async next(event?) {
-    this.pagesNavigated++;
-
-    await this.getItems(1);
-    if (event) {
-      event.target.complete();
-    }
-    if (this.currentPage > this.bucketIndex * this.stepSize + 3) {
-      this.bucketIndex++;
-    }
-    if (!event) {
-      const scrollAmount = this.itemHeight * this.itemsPerPage;
-      await this.content.scrollByPoint(null, scrollAmount, 2000);
-    }
-  }
-
-  async goToPage(page: number) {
-    if (page === this.currentPage) {
-      return;
-    }
-    /**
-     * If going forward, first check if you already have the items.
-     * If going backward, just scroll.
-     * If going to first or last page refresh items
-     */
-    if (page === this.lastPage) {
-      this.pagesNavigated = 0;
-      this.currentPage = this.lastPage;
-      this.bucketIndex = this.lastBucketIndex;
-      this.results = null;
-      await this.getItems();
+    if (this.results) {
       await this.content.scrollToTop();
-      return;
-    } else if (this.bucketIndex > 0 && page === 1) {
-      this.pagesNavigated = 0;
-      this.currentPage = 1;
-      this.bucketIndex = 0;
-      this.results = null;
-      await this.getItems();
-      await this.content.scrollToTop();
-      return;
     }
-    const diff = page - this.currentPage;
-    this.pagesNavigated += diff;
-    const direction = diff > 0 ? 1 : -1;
-
-    if (direction > 0) {
-      // Going forward
-      if (!this.alreadyGotItems(page)) {
-        this.currentPage = page;
-        await this.getItems(diff);
-      }
-    }
-    const itemsToScroll = diff * this.itemsPerPage;
-    const scrollAmount = this.itemHeight * itemsToScroll;
-    this.currentPage = page;
-    await this.content.scrollByPoint(null, scrollAmount, 2000);
   }
 
-  private alreadyGotItems(page: number) {
-    return this.results.length >= this.itemsPerPage * page;
-  }
+  // To-do: debounce search button
+  // async search(query: string) {
+  //   /*
+  //     To-do:
+  //       - add try/catch
+  //       - paginate
+  //   */
+  //   if (this.query && this.query === query) {
+  //     return;
+  //   }
+  //   // this.currentPage = 1;
+  //   this.query = query;
+  //   // const regex = /&page=[0-9]+/g;
+  //   const res = await this.getItems();
+  //   this.remainingRequests = +res.headers.get('X-RateLimit-Remaining');
+  //   this.resultCount = (res.body as any).total_count;
+  //   this.results = (res.body as any).items;
+  //   // const linkHeader = res.headers.get('link');
+  //   // this.lastPage = linkHeader
+  //   //   ? +linkHeader.match(regex)[1].split('=')[1]
+  //   //   : null;
+  //   // this.lastBucketIndex = Math.ceil(this.lastPage / this.stepSize) - 1;
+  //   await this.content.scrollToTop();
+  // }
+
+  // async previous() {
+  //   // this.currentPage--;
+
+  //   /**
+  //    * Copy this
+  //    */
+  //   // if (this.results.length < (this.currentPage * this.itemsPerPage)) {
+  //   //   this.getItems(null, true);
+  //   // }
+
+  //   // this.pagesNavigated--; // may have to move this
+
+  //   /**
+  //    * Copy this
+  //    */
+  //   // if (this.currentPage < this.bucketIndex * this.stepSize + 1) { // change logic for decreasing bucketIndex
+  //   //   this.bucketIndex--;
+  //   // }
+  //   const scrollAmount = this.itemHeight * this.itemsPerPage;
+  //   await this.content.scrollByPoint(null, -scrollAmount, 2000);
+  // }
+
+  // async next(event?) {
+  //   this.pagesNavigated++;
+
+  //   await this.getItems(1);
+  //   if (event) {
+  //     event.target.complete();
+  //   }
+  //   /**
+  //    * Copy this
+  //    */
+  //   // if (this.currentPage > this.bucketIndex * this.stepSize + 3) {
+  //   //   this.bucketIndex++;
+  //   // }
+  //   if (!event) {
+  //     const scrollAmount = this.itemHeight * this.itemsPerPage;
+  //     await this.content.scrollByPoint(null, scrollAmount, 2000);
+  //   }
+  // }
+
+  // async goToPage(page: number, isFirst?: boolean) {
+  //   /**
+  //    * Copy this
+  //    */
+  //   // if (page === this.currentPage) {
+  //   //   return;
+  //   // }
+  //   /**
+  //    * If going forward, first check if you already have the items.
+  //    * If going backward, just scroll.
+  //    * If going to first or last page refresh items
+  //    */
+  //   // if (page === this.lastPage) {
+  //   if (!isFirst) {
+  //     // this.pagesNavigated = 0;
+  //     // this.currentPage = this.lastPage;
+  //     // this.bucketIndex = this.lastBucketIndex;
+  //     this.results = null;
+  //     await this.getItems();
+  //     await this.content.scrollToTop();
+  //     return;
+  //   // } else if (this.bucketIndex > 0 && page === 1) {
+  //   } else if (isFirst) {
+  //     // this.pagesNavigated = 0;
+  //     // this.currentPage = 1;
+  //     // this.bucketIndex = 0;
+  //     this.results = null;
+  //     await this.getItems();
+  //     await this.content.scrollToTop();
+  //     return;
+  //   }
+  //   // const diff = page - this.currentPage;
+  //   // this.pagesNavigated += diff;
+  //   // const direction = diff > 0 ? 1 : -1;
+
+  //   // if (direction > 0) {
+  //   //   // Going forward
+  //   //   if (!this.alreadyGotItems(page)) {
+  //   //     this.currentPage = page;
+  //   //     await this.getItems(diff);
+  //   //   }
+  //   // }
+  //   // const itemsToScroll = diff * this.itemsPerPage;
+  //   // const scrollAmount = this.itemHeight * itemsToScroll;
+  //   // this.currentPage = page;
+  //   // await this.content.scrollByPoint(null, scrollAmount, 2000);
+  // }
+
+  // private alreadyGotItems(page: number) {
+  //   return this.results.length >= this.itemsPerPage * page;
+  // }
 }

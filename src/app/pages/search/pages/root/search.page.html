@@ -20,9 +20,12 @@
 <ion-content class="ion-padding">
   <div class="container">
     <ion-list>
-      <ion-item
+      <!-- <ion-item
         *ngFor="let user of results; let index = index"
         [ngClass]="{'first': index === (pagesNavigated * itemsPerPage)}"
+      > -->
+      <ion-item
+        *ngFor="let user of results; let index = index"
       >
         <ion-avatar slot="start">
           <img [src]="user.avatar_url" />
@@ -33,9 +36,9 @@
       </ion-item>
     </ion-list>
 
-    <ion-infinite-scroll
+    <!-- <ion-infinite-scroll
       *ngIf="resultCount > itemsPerPage"
-      [disabled]="currentPage === lastPage"
+      [disabled]="currentPage === lastPage" // Send event to disable infinity scroll
       threshold="100px"
       (ionInfinite)="next($event)"
     >
@@ -44,70 +47,8 @@
         loadingText="Loading more data..."
       >
       </ion-infinite-scroll-content>
-    </ion-infinite-scroll>
+    </ion-infinite-scroll> -->
   </div>
 </ion-content>
 
-<ion-footer>
-  <ion-toolbar *ngIf="resultCount > itemsPerPage">
-    <ion-buttons slot="start">
-      <ion-button [disabled]="currentPage === 1" (click)="previous()">
-        <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-    <ion-buttons class="ion-justify-content-between">
-      <ion-button (click)="goToPage(1)" *ngIf="bucketIndex === lastBucketIndex"
-        >1</ion-button
-      >
-      <div *ngIf="bucketIndex === lastBucketIndex">...</div>
-
-      <div *ngIf="bucketIndex !== lastBucketIndex; else lastBucket">
-        <ion-button
-          (click)="goToPage(bucketIndex * stepSize + 1)"
-          [ngClass]="{'current': bucketIndex * stepSize + 1 === currentPage}"
-          >{{bucketIndex * stepSize + 1}}</ion-button
-        >
-        <ion-button
-          (click)="goToPage(bucketIndex * stepSize + 2)"
-          [ngClass]="{'current': bucketIndex * stepSize + 2 === currentPage}"
-          >{{bucketIndex * stepSize + 2}}</ion-button
-        >
-        <ion-button
-          (click)="goToPage(bucketIndex * stepSize + 3)"
-          [ngClass]="{'current': bucketIndex * stepSize + 3 === currentPage}"
-          >{{bucketIndex * stepSize + 3}}</ion-button
-        >
-      </div>
-
-      <ng-template #lastBucket>
-        <ion-button
-          (click)="goToPage(lastPage - 2)"
-          [ngClass]="{'current': lastPage - 2 === currentPage}"
-          >{{lastPage - 2}}</ion-button
-        >
-        <ion-button
-          (click)="goToPage(lastPage - 1)"
-          [ngClass]="{'current': lastPage - 1 === currentPage}"
-          >{{lastPage - 1}}</ion-button
-        >
-        <ion-button
-          (click)="goToPage(lastPage)"
-          [ngClass]="{'current': lastPage === currentPage}"
-          >{{lastPage}}</ion-button
-        >
-      </ng-template>
-
-      <div *ngIf="bucketIndex !== lastBucketIndex">...</div>
-      <ion-button
-        (click)="goToPage(lastPage)"
-        *ngIf="bucketIndex !== lastBucketIndex"
-        >{{lastPage}}</ion-button
-      >
-    </ion-buttons>
-    <ion-buttons slot="end">
-      <ion-button [disabled]="currentPage === lastPage" (click)="next()">
-        <ion-icon name="chevron-forward-outline"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-footer>
+<app-pagination *ngIf="resultCount > usersPerPage" [numItems]="resultCount" [itemsPerPage]="usersPerPage" [stepSize]="3"></app-pagination>
