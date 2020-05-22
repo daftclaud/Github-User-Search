@@ -30,6 +30,17 @@ export class SearchPage implements OnInit {
 
   ngOnInit() {}
 
+  /**
+   * no item highlight sometimes
+   */
+
+  getFirstItemIndex() {
+    const index = !(this.results.length % this.itemsPerPage) ?
+    Math.floor((this.results.length - 1) / this.itemsPerPage) * this.itemsPerPage :
+    Math.floor(this.results.length / this.itemsPerPage) * this.itemsPerPage;
+    return index;
+  }
+
   async getItems(multiplier?: number) {
     if (multiplier) {
       this.currentPage++;
@@ -129,6 +140,7 @@ export class SearchPage implements OnInit {
      */
     if (page === this.lastPage) {
       this.currentPage = this.lastPage;
+      console.log(this.currentPage);
       this.bucketIndex = this.lastBucketIndex;
       this.results = null;
       await this.getItems();
@@ -147,14 +159,12 @@ export class SearchPage implements OnInit {
         this.currentPage = page;
         await this.getItems(diff);
       }
-      this.infiniteScroll.disabled = true;
     }
     const itemsToScroll = diff * this.itemsPerPage;
     const scrollAmount = this.itemHeight * itemsToScroll;
     console.log('scrolling by ', itemsToScroll, ' items');
     this.currentPage = page;
     await this.content.scrollByPoint(null, scrollAmount, 2000);
-    // this.infiniteScroll.disabled = false;
   }
 
   private alreadyGotItems(page: number) {
