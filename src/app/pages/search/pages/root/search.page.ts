@@ -34,7 +34,7 @@ export class SearchPage implements OnInit {
    * no item highlight sometimes
    */
 
-  async getItems(multiplier?: number) {
+  async getItems(multiplier?: number, addToFront?: boolean) {
     if (multiplier) {
       this.currentPage++;
     }
@@ -64,7 +64,14 @@ export class SearchPage implements OnInit {
       items = (pt1.body as any).items.concat((pt2.body as any).items);
     }
     this.remainingRequests = +res.headers.get('X-RateLimit-Remaining');
-    this.results = this.results ? this.results.concat(items) : items;
+    if (addToFront) {
+      this.results.unshift(...items);
+      this.results = [...new Set(this.results)]; // removes duplicates
+      console.log('back: ', this.results.length);
+    } else {
+      this.results = this.results ? this.results.concat(items) : items;
+      console.log('front: ', this.results.length);
+    }
     return res;
   }
 
@@ -94,10 +101,15 @@ export class SearchPage implements OnInit {
   }
 
   async previous() {
-    this.pagesNavigated--;
-
     this.currentPage--;
-    if (this.currentPage < this.bucketIndex * this.stepSize + 1) {
+
+    if (this.results.length < (this.currentPage * this.itemsPerPage)) {
+      this.getItems(null, true);
+    }
+
+    this.pagesNavigated--; // may have to move this
+
+    if (this.currentPage < this.bucketIndex * this.stepSize + 1) { // change logic for decreasing bucketIndex
       this.bucketIndex--;
     }
     const scrollAmount = this.itemHeight * this.itemsPerPage;
@@ -136,6 +148,7 @@ export class SearchPage implements OnInit {
       this.results = null;
       await this.getItems();
       await this.content.scrollToTop();
+      return;
     } else if (this.bucketIndex > 0 && page === 1) {
       this.pagesNavigated = 0;
       this.currentPage = 1;
@@ -143,6 +156,7 @@ export class SearchPage implements OnInit {
       this.results = null;
       await this.getItems();
       await this.content.scrollToTop();
+      return;
     }
     const diff = page - this.currentPage;
     this.pagesNavigated += diff;
