@@ -12,7 +12,8 @@
     >
   </div>
   <div *ngIf="remainingRequests" class="ion-text-center ion-padding">
-    {{remainingRequests}} searches remaining
+    {{remainingRequests}} searches remaining <br />
+    {{resultCount}} users found
   </div>
 </ion-header>
 
@@ -29,7 +30,7 @@
       </ion-item>
     </ion-list>
 
-    <ion-infinite-scroll threshold="100px" (ionInfinite)="next($event)">
+    <ion-infinite-scroll *ngIf="resultCount > itemsPerPage" threshold="100px" (ionInfinite)="next($event)">
       <ion-infinite-scroll-content
         loadingSpinner="bubbles"
         loadingText="Loading more data...">
@@ -39,7 +40,7 @@
 </ion-content>
 
 <ion-footer>
-  <ion-toolbar *ngIf="results">
+  <ion-toolbar *ngIf="resultCount > itemsPerPage">
     <ion-buttons slot="start">
       <ion-button [disabled]="currentPage === 1" (click)="previous()">
         <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>

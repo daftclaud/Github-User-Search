@@ -41,6 +41,7 @@ export class SearchPage implements OnInit {
       )
       .pipe(take(1))
       .toPromise();
+    this.remainingRequests = +res.headers.get('X-RateLimit-Remaining');
     this.results = this.results
       ? this.results.concat((res.body as any).items)
       : (res.body as any).items;
