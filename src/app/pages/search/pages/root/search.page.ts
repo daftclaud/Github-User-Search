@@ -46,9 +46,9 @@ export class SearchPage implements OnInit {
 
     /**
      * This takes care of a 'bug' where the github api returns less items than it was asked for.
-     * It usually happens when there aren't many results (~300)
+     * It usually happens when there aren't many results (~300).
      */
-    if (items.length < this.itemsPerPage * 2) {
+    if (multiplier && items.length < this.itemsPerPage * multiplier) {
       const pt1 = await this.githubSvc
       .searchUsers(
         this.query,
