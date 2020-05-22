@@ -64,11 +64,13 @@ export class SearchPage implements OnInit {
     this.lastBucketIndex = Math.ceil(this.resultCount / this.stepSize) - 1;
   }
 
-  previous() {
+  async previous() {
     this.currentPage--;
     if (this.currentPage < this.bucketIndex * this.stepSize + 1) {
       this.bucketIndex--;
     }
+    const scrollAmount = this.itemHeight * this.itemsPerPage;
+    await this.content.scrollByPoint(null, -scrollAmount, 2000);
   }
 
   async next(event?) {
@@ -80,11 +82,8 @@ export class SearchPage implements OnInit {
       this.bucketIndex++;
     }
     if (!event) {
-      await this.content.scrollToPoint(
-        null,
-        this.itemHeight * this.itemsPerPage,
-        2000
-      );
+      const scrollAmount = this.itemHeight * this.itemsPerPage;
+      await this.content.scrollByPoint(null, scrollAmount, 2000);
     }
   }
 
