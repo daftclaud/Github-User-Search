@@ -58,6 +58,11 @@ export class SearchPage implements OnInit {
     } else {
       this.results = this.results ? this.results.concat(items) : items;
     }
+
+    if (page > 1) {
+      this.scrollPage(itemsToGet, prepend ? 'backward' : 'forward');
+    }
+
     return res;
   }
 
@@ -72,5 +77,12 @@ export class SearchPage implements OnInit {
     if (this.results) {
       await this.content.scrollToTop();
     }
+  }
+
+  scrollPage(itemsToScroll: number, direction: 'forward' | 'backward') {
+    return this.content.scrollByPoint(0,
+      direction === 'forward' ? this.itemHeight * itemsToScroll : this.itemHeight * -itemsToScroll,
+      2000
+    );
   }
 }
