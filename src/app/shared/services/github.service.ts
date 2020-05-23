@@ -19,8 +19,8 @@ export interface GitUser {
   gravatar_id: '';
   html_url: string;
   id: number;
-  login: 'daftclaud';
-  node_id: 'MDQ6VXNlcjE3MjU4MzQx';
+  login: string;
+  node_id: string;
   organizations_url: string;
   received_events_url: string;
   repos_url: string;

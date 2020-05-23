@@ -30,9 +30,10 @@ export class PaginationComponent implements OnInit {
     this.currentPage = 1;
     this.bucketIndex = 0;
     this.pagesNavigated = [1];
-    this.lastPage = this.itemTotal < this.maxItems ?
-    Math.ceil(this.itemTotal / this.itemsPerPage) :
-    Math.ceil(this.maxItems / this.itemsPerPage);
+    this.lastPage =
+      this.itemTotal < this.maxItems
+        ? Math.ceil(this.itemTotal / this.itemsPerPage)
+        : Math.ceil(this.maxItems / this.itemsPerPage);
     this.lastBucketIndex = Math.ceil(this.lastPage / this.stepSize) - 1;
   }
 
@@ -41,8 +42,22 @@ export class PaginationComponent implements OnInit {
     if (!this.pagesNavigated.includes(this.currentPage)) {
       this.pagesNavigated.push(this.currentPage);
     }
+    if (this.bucketIndex === this.lastBucketIndex) {
+      if (page < this.lastPage - 2) {
+        this.updateBucketIndex();
+      }
+    } else {
+      this.updateBucketIndex();
+    }
+  }
+
+  updateBucketIndex() {
     for (let i = 0; i <= this.lastBucketIndex; i++) {
-      const pagesInBucket = [i * this.stepSize + 1, i * this.stepSize + 2, i * this.stepSize + 3];
+      const pagesInBucket = [
+        i * this.stepSize + 1,
+        i * this.stepSize + 2,
+        i * this.stepSize + 3,
+      ];
       if (pagesInBucket.includes(this.currentPage)) {
         this.bucketIndex = i;
         break;
@@ -91,7 +106,11 @@ export class PaginationComponent implements OnInit {
     } else if (this.shouldFetch(page)) {
       opts = {
         currentPage: page,
-        requestParams: [page, this.itemsPerPage * diff, false], // check it should be true or false
+        requestParams: [
+          page,
+          this.itemsPerPage * diff,
+          this.currentPage > page,
+        ],
       };
     } else {
       opts = {

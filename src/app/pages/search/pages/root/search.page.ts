@@ -23,12 +23,8 @@ export class SearchPage {
   constructor(private githubSvc: GithubService) {}
 
   onNavigate(args: PaginationOutput) {
-    // Nice-to-have: conditional types for PaginationOutput
-    // if args.refresh is present then requestParams is required
     if (args.refresh) {
       this.results = [];
-      this.getItems(...args.requestParams);
-      return;
     }
 
     if (args.requestParams) {
