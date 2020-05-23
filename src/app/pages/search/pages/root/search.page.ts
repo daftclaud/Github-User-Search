@@ -9,7 +9,7 @@ import { PaginationOutput } from '../../components/pagination/pagination.compone
   templateUrl: './search.page.html',
   styleUrls: ['./search.page.scss'],
 })
-export class SearchPage implements OnInit {
+export class SearchPage {
   query: string;
   remainingRequests: number;
   resultCount: number;
@@ -22,9 +22,15 @@ export class SearchPage implements OnInit {
 
   constructor(private githubSvc: GithubService) {}
 
-  ngOnInit() {}
-
   onNavigate(args: PaginationOutput) {
+    // Nice-to-have: conditional types for PaginationOutput
+    // if args.refresh is present then requestParams is required
+    if (args.refresh) {
+      this.results = [];
+      this.getItems(...args.requestParams);
+      return;
+    }
+
     if (args.requestParams) {
       this.getItems(...args.requestParams);
     }

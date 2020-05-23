@@ -2,6 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 export interface PaginationOutput {
   currentPage: number;
   requestParams?: [number, number, boolean];
+  refresh?: boolean;
 }
 
 @Component({
@@ -14,6 +15,7 @@ export class PaginationComponent implements OnInit {
   @Input() itemTotal: number;
   @Input() itemsPerPage: number;
   @Input() stepSize: number;
+  @Input() maxItems: number;
   // To-do: Add input for scroll events subject
   @Output() navigate: EventEmitter<PaginationOutput> = new EventEmitter();
   pagesNavigated: number[];
@@ -28,7 +30,9 @@ export class PaginationComponent implements OnInit {
     this.currentPage = 1;
     this.bucketIndex = 0;
     this.pagesNavigated = [1];
-    this.lastPage = Math.ceil(this.itemTotal / this.itemsPerPage);
+    this.lastPage = this.itemTotal < this.maxItems ?
+    Math.ceil(this.itemTotal / this.itemsPerPage) :
+    Math.ceil(this.maxItems / this.itemsPerPage);
     this.lastBucketIndex = Math.ceil(this.lastPage / this.stepSize) - 1;
   }
 
@@ -74,8 +78,29 @@ export class PaginationComponent implements OnInit {
     this.changePage(this.currentPage + 1);
   }
 
-  goToPage() {
-    console.log('To-do: implement goToPage');
+  goToPage(page: number) {
+    const diff = Math.abs(this.currentPage - page);
+    let opts: PaginationOutput;
+
+    if (diff > 2) {
+      opts = {
+        currentPage: page,
+        refresh: true,
+        requestParams: [page, this.itemsPerPage, false],
+      };
+    } else if (this.shouldFetch(page)) {
+      opts = {
+        currentPage: page,
+        requestParams: [page, this.itemsPerPage * diff, false], // check it should be true or false
+      };
+    } else {
+      opts = {
+        currentPage: page,
+      };
+    }
+
+    this.navigate.emit(opts);
+    this.changePage(page);
   }
 
   private shouldFetch(page: number) {
