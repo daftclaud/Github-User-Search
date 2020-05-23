@@ -24,9 +24,7 @@
         *ngFor="let user of results; let index = index"
         [ngClass]="{'first': index === (pagesNavigated * itemsPerPage)}"
       > -->
-      <ion-item
-        *ngFor="let user of results; let index = index"
-      >
+      <ion-item *ngFor="let user of results; let index = index">
         <ion-avatar slot="start">
           <img [src]="user.avatar_url" />
         </ion-avatar>
@@ -51,4 +49,11 @@
   </div>
 </ion-content>
 
-<app-pagination *ngIf="resultCount > usersPerPage" [numItems]="resultCount" [itemsPerPage]="usersPerPage" [stepSize]="3"></app-pagination>
+<app-pagination
+  *ngIf="resultCount > usersPerPage"
+  [itemTotal]="resultCount"
+  [numItems]="results.length"
+  [itemsPerPage]="usersPerPage"
+  [stepSize]="3"
+  (getMore)="getItems($event)"
+></app-pagination>
