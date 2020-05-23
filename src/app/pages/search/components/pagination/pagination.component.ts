@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 export interface PaginationOutput {
-  navEvent: 'next' | 'prev' | 'refresh';
+  currentPage: number;
   requestParams?: [number, number, boolean];
 }
 
@@ -49,12 +49,12 @@ export class PaginationComponent implements OnInit {
   previousPage() {
     if (this.shouldFetch(this.currentPage - 1)) {
       this.navigate.emit({
-        navEvent: 'prev',
+        currentPage: this.currentPage - 1,
         requestParams: [this.currentPage - 1, this.itemsPerPage, true],
       });
     } else {
       this.navigate.emit({
-        navEvent: 'prev',
+        currentPage: this.currentPage - 1,
       });
     }
     this.changePage(this.currentPage - 1);
@@ -63,12 +63,12 @@ export class PaginationComponent implements OnInit {
   nextPage() {
     if (this.shouldFetch(this.currentPage + 1)) {
       this.navigate.emit({
-        navEvent: 'next',
+        currentPage: this.currentPage + 1,
         requestParams: [this.currentPage + 1, this.itemsPerPage, false],
       });
     } else {
       this.navigate.emit({
-        navEvent: 'next',
+        currentPage: this.currentPage + 1,
       });
     }
     this.changePage(this.currentPage + 1);

@@ -29,17 +29,7 @@ export class SearchPage implements OnInit {
       this.getItems(...args.requestParams);
     }
 
-    switch (args.navEvent) {
-      case 'next':
-        this.scrollPage(this.usersPerPage, 'forward');
-        break;
-      case 'prev':
-        this.scrollPage(this.usersPerPage, 'backward');
-        break;
-      case 'refresh':
-        console.log('refresh');
-        break;
-    }
+    this.scrollToPage(args.currentPage);
   }
 
   async getItems(page: number, itemsToGet: number, prepend: boolean) {
@@ -93,9 +83,9 @@ export class SearchPage implements OnInit {
     }
   }
 
-  scrollPage(itemsToScroll: number, direction: 'forward' | 'backward') {
-    return this.content.scrollByPoint(0,
-      direction === 'forward' ? this.itemHeight * itemsToScroll : this.itemHeight * -itemsToScroll,
+  scrollToPage(page: number) {
+    return this.content.scrollToPoint(0,
+      this.itemHeight * ((page - 1) * this.usersPerPage),
       2000
     );
   }
