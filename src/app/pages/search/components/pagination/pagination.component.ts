@@ -32,40 +32,46 @@ export class PaginationComponent implements OnInit {
     this.lastBucketIndex = Math.ceil(this.lastPage / this.stepSize) - 1;
   }
 
-  previousPage() {
-    this.currentPage--;
-    if (this.shouldFetch(this.currentPage)) {
-      console.log('fetching more items');
-      this.navigate.emit({
-        navEvent: 'prev',
-        requestParams: [this.currentPage, this.itemsPerPage, true],
-      });
-    } else {
-      this.navigate.emit({
-        navEvent: 'prev',
-      });
-    }
+  changePage(page: number) {
+    this.currentPage = page;
     if (!this.pagesNavigated.includes(this.currentPage)) {
       this.pagesNavigated.push(this.currentPage);
+    }
+    for (let i = 0; i <= this.lastBucketIndex; i++) {
+      const pagesInBucket = [i * this.stepSize + 1, i * this.stepSize + 2, i * this.stepSize + 3];
+      if (pagesInBucket.includes(this.currentPage)) {
+        this.bucketIndex = i;
+        break;
+      }
     }
   }
 
+  previousPage() {
+    if (this.shouldFetch(this.currentPage - 1)) {
+      this.navigate.emit({
+        navEvent: 'prev',
+        requestParams: [this.currentPage - 1, this.itemsPerPage, true],
+      });
+    } else {
+      this.navigate.emit({
+        navEvent: 'prev',
+      });
+    }
+    this.changePage(this.currentPage - 1);
+  }
+
   nextPage() {
-    this.currentPage++;
-    if (this.shouldFetch(this.currentPage)) {
-      console.log('fetching more items');
+    if (this.shouldFetch(this.currentPage + 1)) {
       this.navigate.emit({
         navEvent: 'next',
-        requestParams: [this.currentPage, this.itemsPerPage, false],
+        requestParams: [this.currentPage + 1, this.itemsPerPage, false],
       });
     } else {
       this.navigate.emit({
         navEvent: 'next',
       });
     }
-    if (!this.pagesNavigated.includes(this.currentPage)) {
-      this.pagesNavigated.push(this.currentPage);
-    }
+    this.changePage(this.currentPage + 1);
   }
 
   goToPage() {
