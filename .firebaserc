@@ -1,5 +1,14 @@
 {
   "projects": {
     "default": "github-user-search-dc4bf"
+  },
+  "targets": {
+    "github-user-search-dc4bf": {
+      "hosting": {
+        "app": [
+          "github-user-search-dc4bf"
+        ]
+      }
+    }
   }
 }

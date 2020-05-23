@@ -44,7 +44,8 @@ export class SearchPage {
       .pipe(take(1))
       .toPromise();
     let items = (res.body as any).items;
-    console.log(items[0])
+    const reb = await this.githubSvc.getNotableInfo(items);
+    console.log(reb);
     this.remainingRequests = +res.headers.get('X-RateLimit-Remaining');
 
     /**
