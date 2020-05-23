@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { GithubService, GitUser } from 'src/app/shared/services/github.service';
 import { take } from 'rxjs/operators';
 import { IonContent, IonInfiniteScroll } from '@ionic/angular';
+import { PaginationOutput } from '../../components/pagination/pagination.component';
 
 @Component({
   selector: 'app-search',
@@ -23,8 +24,25 @@ export class SearchPage implements OnInit {
 
   ngOnInit() {}
 
-  async getItems(args: [number, number, boolean]) {
-    const [page, itemsToGet, prepend] = args;
+  onNavigate(args: PaginationOutput) {
+    if (args.requestParams) {
+      this.getItems(...args.requestParams);
+    }
+
+    switch (args.navEvent) {
+      case 'next':
+        this.scrollPage(this.usersPerPage, 'forward');
+        break;
+      case 'prev':
+        this.scrollPage(this.usersPerPage, 'backward');
+        break;
+      case 'refresh':
+        console.log('refresh');
+        break;
+    }
+  }
+
+  async getItems(page: number, itemsToGet: number, prepend: boolean) {
     const res = await this.githubSvc
       .searchUsers(
         this.query,
@@ -59,10 +77,6 @@ export class SearchPage implements OnInit {
       this.results = this.results ? this.results.concat(items) : items;
     }
 
-    if (page > 1) {
-      this.scrollPage(itemsToGet, prepend ? 'backward' : 'forward');
-    }
-
     return res;
   }
 
@@ -72,7 +86,7 @@ export class SearchPage implements OnInit {
       return;
     }
     this.query = query;
-    const res = await this.getItems([1, this.usersPerPage, false]);
+    const res = await this.getItems(1, this.usersPerPage, false);
     this.resultCount = (res.body as any).total_count;
     if (this.results) {
       await this.content.scrollToTop();

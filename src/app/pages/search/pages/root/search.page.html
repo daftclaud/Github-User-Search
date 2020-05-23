@@ -29,7 +29,7 @@
           <img [src]="user.avatar_url" />
         </ion-avatar>
         <ion-label>
-          {{user.login}}
+          {{user.login}} {{index}}
         </ion-label>
       </ion-item>
     </ion-list>
@@ -55,5 +55,5 @@
   [numItems]="results.length"
   [itemsPerPage]="usersPerPage"
   [stepSize]="3"
-  (getMore)="getItems($event)"
+  (navigate)="onNavigate($event)"
 ></app-pagination>
