@@ -44,6 +44,7 @@ export class SearchPage {
       .pipe(take(1))
       .toPromise();
     let items = (res.body as any).items;
+    console.log(items[0])
     this.remainingRequests = +res.headers.get('X-RateLimit-Remaining');
 
     /**
