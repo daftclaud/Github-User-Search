@@ -18,7 +18,9 @@ export class PaginationComponent implements OnInit, OnDestroy {
   @Input() stepSize: number;
   @Input() maxItems: number;
   @Input() completeNavigation$: Observable<void>;
-  sub: Subscription;
+  completeSub: Subscription;
+  @Input() reset$: Observable<void>;
+  resetSub: Subscription;
   @Output() navigate: EventEmitter<PaginationOutput> = new EventEmitter();
 
   targetPage: number; // Keeps track of page to navigate if items are succesfully loaded
@@ -31,6 +33,13 @@ export class PaginationComponent implements OnInit, OnDestroy {
   constructor() {}
 
   ngOnInit() {
+    this.initValues();
+
+    this.completeSub = this.completeNavigation$.subscribe(_ => this.changePage());
+    this.resetSub = this.reset$.subscribe(_ => this.initValues());
+  }
+
+  initValues() {
     this.currentPage = 1;
     this.targetPage = 1;
     this.bucketIndex = 0;
@@ -40,14 +49,11 @@ export class PaginationComponent implements OnInit, OnDestroy {
         ? Math.ceil(this.itemTotal / this.itemsPerPage)
         : Math.ceil(this.maxItems / this.itemsPerPage);
     this.lastBucketIndex = Math.ceil(this.lastPage / this.stepSize) - 1;
-
-    this.sub = this.completeNavigation$.subscribe(_ => {
-      this.changePage();
-    });
   }
 
   ngOnDestroy() {
-    this.sub.unsubscribe();
+    this.completeSub.unsubscribe();
+    this.resetSub.unsubscribe();
   }
 
   changePage() {

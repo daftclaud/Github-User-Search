@@ -18,6 +18,7 @@ export class SearchPage {
   results: GitUser[];
 
   onComplete$: BehaviorSubject<void> = new BehaviorSubject(null);
+  resetPagination$: BehaviorSubject<void> = new BehaviorSubject(null);
 
   usersPerPage = 30;
   itemHeight = 175 + 24; // height + margin
@@ -97,9 +98,12 @@ export class SearchPage {
     if ((this.query && this.query === query) || this.loading) {
       return;
     }
+    this.results = [];
+    this.resultCount = null;
     this.query = query;
     this.loading = true;
     const res = await this.getItems(1, this.usersPerPage, false);
+    this.resetPagination$.next();
     this.loading = false;
     this.resultCount = res.resultCount;
     if (this.results) {

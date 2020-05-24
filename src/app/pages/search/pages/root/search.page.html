@@ -12,7 +12,7 @@
     >
   </div>
   <div class="result-info" *ngIf="remainingRequests" class="ion-text-center ion-padding">
-    <p>{{resultCount}} users found | {{remainingRequests}} searches remaining</p>
+    <p *ngIf="resultCount">{{resultCount}} users found | {{remainingRequests}} searches remaining</p>
     <p *ngIf="resultCount > 1000">*Showing only the first 1000 results</p>
   </div>
 </ion-header>
@@ -33,6 +33,7 @@
   [itemsPerPage]="usersPerPage"
   [stepSize]="3"
   [completeNavigation$]="onComplete$"
+  [reset$]="resetPagination$"
   [maxItems]="1000"
   (navigate)="onNavigate($event)"
 ></app-pagination>
