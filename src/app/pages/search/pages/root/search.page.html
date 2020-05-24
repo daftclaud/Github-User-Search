@@ -1,6 +1,6 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Search Users</ion-title>
+    <ion-title>Github User Search</ion-title>
   </ion-toolbar>
   <div class="row ion-padding">
     <ion-searchbar #searchbar></ion-searchbar>
@@ -12,11 +12,8 @@
     >
   </div>
   <div *ngIf="remainingRequests" class="ion-text-center ion-padding">
-    {{remainingRequests}} searches remaining <br />
-    {{resultCount}} users found
-  </div>
-  <div *ngIf="resultCount > 1000" class="ion-text-center ion-padding">
-    *Showing only the first 1000 results
+    <p>{{resultCount}} users found | {{remainingRequests}} searches remaining</p>
+    <p *ngIf="resultCount > 1000">*Showing only the first 1000 results</p>
   </div>
 </ion-header>
 

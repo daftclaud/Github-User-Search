@@ -20,7 +20,7 @@ export class SearchPage {
   onComplete$: BehaviorSubject<void> = new BehaviorSubject(null);
 
   usersPerPage = 30;
-  itemHeight = 175 + 24;
+  itemHeight = 175 + 24; // height + margin
 
   @ViewChild(IonContent) content: IonContent;
 
@@ -49,7 +49,7 @@ export class SearchPage {
     this.scrollToPage(args.currentPage);
   }
 
-  private isEmpty(obj) {
+  private isEmpty(obj: object) {
     for (const key in obj) {
       if (obj.hasOwnProperty(key)) {
         return false;

@@ -20,11 +20,12 @@ export class PaginationComponent implements OnInit, OnDestroy {
   @Input() completeNavigation$: Observable<void>;
   sub: Subscription;
   @Output() navigate: EventEmitter<PaginationOutput> = new EventEmitter();
-  targetPage: number;
-  pagesNavigated: number[];
+
+  targetPage: number; // Keeps track of page to navigate if items are succesfully loaded
+  pagesNavigated: number[]; // History of the pages that have been loaded
   currentPage: number;
   lastPage: number;
-  bucketIndex: number;
+  bucketIndex: number; // Keeps track of which page group to display ("1 2 3", "4 5 6", etc...)
   lastBucketIndex: number;
 
   constructor() {}

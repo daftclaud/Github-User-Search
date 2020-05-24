@@ -1,15 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AngularFireFunctions } from '@angular/fire/functions';
 
-// export interface SearchOptions {
-//   query: string;
-//   repositories?: number;
-//   followers?: number;
-//   joined?: string; // YYYY-MM-DD
-//   location?: string;
-//   order?: 'desc' | 'asc';
-// }
-
 export interface GitUser {
   info?: NotableInfo;
   avatar_url: string;
