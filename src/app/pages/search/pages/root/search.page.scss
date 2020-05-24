@@ -3,10 +3,15 @@
 }
 
 .row {
+  padding-bottom: 0;
   display: flex;
   ion-button {
     margin: auto;
   }
+}
+
+.result-info {
+  padding-top: 0;
 }
 
 @media only screen and (min-width: 768px) {

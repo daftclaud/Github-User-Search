@@ -11,7 +11,7 @@
       >Search</ion-button
     >
   </div>
-  <div *ngIf="remainingRequests" class="ion-text-center ion-padding">
+  <div class="result-info" *ngIf="remainingRequests" class="ion-text-center ion-padding">
     <p>{{resultCount}} users found | {{remainingRequests}} searches remaining</p>
     <p *ngIf="resultCount > 1000">*Showing only the first 1000 results</p>
   </div>
