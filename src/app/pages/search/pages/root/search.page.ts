@@ -4,6 +4,7 @@ import { take } from 'rxjs/operators';
 import { IonContent, IonInfiniteScroll } from '@ionic/angular';
 import { PaginationOutput } from '../../components/pagination/pagination.component';
 import { ToastService } from 'src/app/shared/services/toast.service';
+import { BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: 'app-search',
@@ -17,8 +18,10 @@ export class SearchPage {
   resultCount: number;
   results: GitUser[];
 
+  onComplete$: BehaviorSubject<void> = new BehaviorSubject(null);
+
   usersPerPage = 30;
-  itemHeight = 175 + 48;
+  itemHeight = 175 + 24;
 
   @ViewChild(IonContent) content: IonContent;
 
@@ -36,6 +39,7 @@ export class SearchPage {
       this.loading = true;
       await this.getItems(...args.requestParams);
       this.loading = false;
+      this.onComplete$.next();
     }
 
     this.scrollToPage(args.currentPage);
@@ -51,8 +55,6 @@ export class SearchPage {
   }
 
   async getItems(page: number, itemsToGet: number, prepend: boolean) {
-    this.loading = true;
-
     try {
       const res = await this.githubSvc.searchUsers(
         this.query,
@@ -79,6 +81,7 @@ export class SearchPage {
       return res;
     } catch (error) {
       this.toastSvc.makeToast(error.message);
+      return error;
     }
 
     /**
@@ -105,22 +108,18 @@ export class SearchPage {
     }
     this.query = query;
     this.loading = true;
-    try {
-      const res = await this.getItems(1, this.usersPerPage, false);
-      this.resultCount = res.resultCount;
-      if (this.results) {
-        await this.content.scrollToTop();
-      }
-    } catch (error) {
-      this.toastSvc.makeToast(error.message);
-    }
+    const res = await this.getItems(1, this.usersPerPage, false);
     this.loading = false;
+    this.resultCount = res.resultCount;
+    if (this.results) {
+      await this.content.scrollToTop();
+    }
   }
 
   scrollToPage(page: number) {
     return this.content.scrollToPoint(
       0,
-      this.itemHeight * ((page - 1) * this.usersPerPage),
+      this.itemHeight * ((page - 1) * this.usersPerPage) + 16,
       2000
     );
   }

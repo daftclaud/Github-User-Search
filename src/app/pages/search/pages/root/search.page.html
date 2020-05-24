@@ -48,6 +48,7 @@
   [numItems]="results.length"
   [itemsPerPage]="usersPerPage"
   [stepSize]="3"
+  [completeNavigation$]="onComplete$"
   [maxItems]="1000"
   (navigate)="onNavigate($event)"
 ></app-pagination>

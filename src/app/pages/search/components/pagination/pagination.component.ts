@@ -1,4 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Observable } from 'rxjs';
 export interface PaginationOutput {
   currentPage: number;
   requestParams?: [number, number, boolean];
@@ -16,8 +17,10 @@ export class PaginationComponent implements OnInit {
   @Input() itemsPerPage: number;
   @Input() stepSize: number;
   @Input() maxItems: number;
+  @Input() completeNavigation$: Observable<void>;
   // To-do: Add input for scroll events subject
   @Output() navigate: EventEmitter<PaginationOutput> = new EventEmitter();
+  targetPage: number;
   pagesNavigated: number[];
   currentPage: number;
   lastPage: number;
@@ -28,6 +31,7 @@ export class PaginationComponent implements OnInit {
 
   ngOnInit() {
     this.currentPage = 1;
+    this.targetPage = 1;
     this.bucketIndex = 0;
     this.pagesNavigated = [1];
     this.lastPage =
@@ -35,15 +39,20 @@ export class PaginationComponent implements OnInit {
         ? Math.ceil(this.itemTotal / this.itemsPerPage)
         : Math.ceil(this.maxItems / this.itemsPerPage);
     this.lastBucketIndex = Math.ceil(this.lastPage / this.stepSize) - 1;
+
+    this.completeNavigation$.subscribe(_ => {
+      this.changePage();
+    });
   }
 
-  changePage(page: number) {
-    this.currentPage = page;
+  changePage() {
+    this.currentPage = this.targetPage;
+    this.targetPage = null;
     if (!this.pagesNavigated.includes(this.currentPage)) {
       this.pagesNavigated.push(this.currentPage);
     }
     if (this.bucketIndex === this.lastBucketIndex) {
-      if (page < this.lastPage - 2) {
+      if (this.currentPage < this.lastPage - 2) {
         this.updateBucketIndex();
       }
     } else {
@@ -66,6 +75,7 @@ export class PaginationComponent implements OnInit {
   }
 
   previousPage() {
+    this.targetPage = this.currentPage - 1;
     if (this.shouldFetch(this.currentPage - 1)) {
       this.navigate.emit({
         currentPage: this.currentPage - 1,
@@ -75,11 +85,12 @@ export class PaginationComponent implements OnInit {
       this.navigate.emit({
         currentPage: this.currentPage - 1,
       });
+      this.changePage();
     }
-    this.changePage(this.currentPage - 1);
   }
 
   nextPage() {
+    this.targetPage = this.currentPage + 1;
     if (this.shouldFetch(this.currentPage + 1)) {
       this.navigate.emit({
         currentPage: this.currentPage + 1,
@@ -89,11 +100,12 @@ export class PaginationComponent implements OnInit {
       this.navigate.emit({
         currentPage: this.currentPage + 1,
       });
+      this.changePage();
     }
-    this.changePage(this.currentPage + 1);
   }
 
   goToPage(page: number) {
+    this.targetPage = page;
     const diff = Math.abs(this.currentPage - page);
     let opts: PaginationOutput;
 
@@ -116,10 +128,10 @@ export class PaginationComponent implements OnInit {
       opts = {
         currentPage: page,
       };
+      this.changePage();
     }
 
     this.navigate.emit(opts);
-    this.changePage(page);
   }
 
   private shouldFetch(page: number) {
