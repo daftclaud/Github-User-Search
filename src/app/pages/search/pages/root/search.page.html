@@ -26,19 +26,6 @@
       <app-user-card *ngFor="let user of results" [user]="user"></app-user-card>
       <app-loading *ngIf="loading"></app-loading>
     </ion-list>
-
-    <!-- <ion-infinite-scroll
-      *ngIf="resultCount > itemsPerPage"
-      [disabled]="currentPage === lastPage" // Send event to disable infinity scroll
-      threshold="100px"
-      (ionInfinite)="next($event)"
-    >
-      <ion-infinite-scroll-content
-        loadingSpinner="bubbles"
-        loadingText="Loading more data..."
-      >
-      </ion-infinite-scroll-content>
-    </ion-infinite-scroll> -->
   </div>
 </ion-content>
 
