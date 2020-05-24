@@ -3,6 +3,7 @@ import { GithubService, GitUser } from 'src/app/shared/services/github.service';
 import { take } from 'rxjs/operators';
 import { IonContent, IonInfiniteScroll } from '@ionic/angular';
 import { PaginationOutput } from '../../components/pagination/pagination.component';
+import { ToastService } from 'src/app/shared/services/toast.service';
 
 @Component({
   selector: 'app-search',
@@ -21,7 +22,10 @@ export class SearchPage {
 
   @ViewChild(IonContent) content: IonContent;
 
-  constructor(private githubSvc: GithubService) {}
+  constructor(
+    private githubSvc: GithubService,
+    private toastSvc: ToastService
+  ) {}
 
   async onNavigate(args: PaginationOutput) {
     if (args.refresh) {
@@ -39,7 +43,9 @@ export class SearchPage {
 
   private isEmpty(obj) {
     for (const key in obj) {
-      if (obj.hasOwnProperty(key)) { return false; }
+      if (obj.hasOwnProperty(key)) {
+        return false;
+      }
     }
     return true;
   }
@@ -47,18 +53,33 @@ export class SearchPage {
   async getItems(page: number, itemsToGet: number, prepend: boolean) {
     this.loading = true;
 
-    const res = await this.githubSvc.searchUsers(
-      this.query,
-      page,
-      itemsToGet || this.usersPerPage
-    );
+    try {
+      const res = await this.githubSvc.searchUsers(
+        this.query,
+        page,
+        itemsToGet || this.usersPerPage
+      );
+      if (this.isEmpty(res)) {
+        this.toastSvc.makeToast(
+          'There was a problem while getting the results. Please wait a minute and try again'
+        );
+        return;
+      }
+      const users = res.users as GitUser[];
+      this.remainingRequests = res.remaining;
+      if (prepend) {
+        this.results.unshift(...users);
+        this.results = [...new Set(this.results)]; // removes duplicates
+      } else {
+        this.results = this.results ? this.results.concat(users) : users;
+      }
 
-    if (this.isEmpty(res)) {
-      alert('There was a problem getting your results');
-      return;
+      console.log(this.results.length);
+
+      return res;
+    } catch (error) {
+      this.toastSvc.makeToast(error.message);
     }
-    const users = res.users as GitUser[];
-    this.remainingRequests = res.remaining;
 
     /**
      * This takes care of a 'bug' where the github api returns less items than it was asked for.
@@ -75,17 +96,6 @@ export class SearchPage {
     //     .toPromise();
     //   items = (pt1.body as any).items.concat((pt2.body as any).items);
     // }
-
-    if (prepend) {
-      this.results.unshift(...users);
-      this.results = [...new Set(this.results)]; // removes duplicates
-    } else {
-      this.results = this.results ? this.results.concat(users) : users;
-    }
-
-    console.log(this.results.length);
-
-    return res;
   }
 
   // To-do: debounce search button
@@ -95,12 +105,16 @@ export class SearchPage {
     }
     this.query = query;
     this.loading = true;
-    const res = await this.getItems(1, this.usersPerPage, false);
-    this.loading = false;
-    this.resultCount = res.resultCount;
-    if (this.results) {
-      await this.content.scrollToTop();
+    try {
+      const res = await this.getItems(1, this.usersPerPage, false);
+      this.resultCount = res.resultCount;
+      if (this.results) {
+        await this.content.scrollToTop();
+      }
+    } catch (error) {
+      this.toastSvc.makeToast(error.message);
     }
+    this.loading = false;
   }
 
   scrollToPage(page: number) {
