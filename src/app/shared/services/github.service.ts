@@ -12,6 +12,7 @@ export interface SearchOptions {
 }
 
 export interface GitUser {
+  info?: NotableInfo;
   avatar_url: string;
   events_url: string;
   followers_url: string;
@@ -65,7 +66,7 @@ export class GithubService {
     return this.http.get(url, { observe: 'response' });
   }
 
-  getNotableInfo(users: GitUser[]) {
+  getNotableInfo(users: GitUser[]): Promise<NotableInfo[]> {
     const getNotableInfo = this.fun.httpsCallable('getNotableInfo');
     const urls = users.map(user => user.html_url);
 

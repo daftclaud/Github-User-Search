@@ -23,18 +23,7 @@
 <ion-content class="ion-padding">
   <div class="container">
     <ion-list>
-      <!-- <ion-item
-        *ngFor="let user of results; let index = index"
-        [ngClass]="{'first': index === (pagesNavigated * itemsPerPage)}"
-      > -->
-      <ion-item *ngFor="let user of results; let index = index">
-        <ion-avatar slot="start">
-          <img [src]="user.avatar_url" />
-        </ion-avatar>
-        <ion-label>
-          {{user.login}} {{index}}
-        </ion-label>
-      </ion-item>
+      <app-user-card *ngFor="let user of results" [user]="user"></app-user-card>
     </ion-list>
 
     <!-- <ion-infinite-scroll

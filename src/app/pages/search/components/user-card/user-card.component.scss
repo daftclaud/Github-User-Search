@@ -1,0 +1,31 @@
+ion-card {
+  height: 175px;
+}
+ion-card-header {
+  display: flex;
+  ion-avatar {
+    margin-right: 10px;
+  }
+}
+div.description {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.card-footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  ion-col {
+      display: flex;
+  }
+}
+div.counters {
+  white-space: nowrap;
+}
+div.location {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

@@ -16,19 +16,21 @@ export class SearchPage {
   results: GitUser[];
 
   usersPerPage = 30;
-  itemHeight = 44;
+  itemHeight = 175 + 48;
 
   @ViewChild(IonContent) content: IonContent;
 
   constructor(private githubSvc: GithubService) {}
 
-  onNavigate(args: PaginationOutput) {
+  async onNavigate(args: PaginationOutput) {
     if (args.refresh) {
       this.results = [];
     }
 
     if (args.requestParams) {
-      this.getItems(...args.requestParams);
+      console.log('getting items...');
+      await this.getItems(...args.requestParams);
+      console.log('done');
     }
 
     this.scrollToPage(args.currentPage);
@@ -43,9 +45,7 @@ export class SearchPage {
       )
       .pipe(take(1))
       .toPromise();
-    let items = (res.body as any).items;
-    const reb = await this.githubSvc.getNotableInfo(items);
-    console.log(reb);
+    let items = (res.body as any).items as GitUser[];
     this.remainingRequests = +res.headers.get('X-RateLimit-Remaining');
 
     /**
@@ -62,6 +62,13 @@ export class SearchPage {
         .pipe(take(1))
         .toPromise();
       items = (pt1.body as any).items.concat((pt2.body as any).items);
+    }
+
+    try {
+      const info = await this.githubSvc.getNotableInfo(items);
+      items.forEach((user, index) => user.info = info[index]);
+    } catch {
+      console.log('There was an issue while getting the users info');
     }
 
     if (prepend) {
