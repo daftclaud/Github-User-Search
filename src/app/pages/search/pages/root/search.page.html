@@ -24,6 +24,7 @@
   <div class="container">
     <ion-list>
       <app-user-card *ngFor="let user of results" [user]="user"></app-user-card>
+      <app-loading *ngIf="loading"></app-loading>
     </ion-list>
 
     <!-- <ion-infinite-scroll

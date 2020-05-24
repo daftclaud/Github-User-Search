@@ -11,6 +11,7 @@ import { PaginationOutput } from '../../components/pagination/pagination.compone
 })
 export class SearchPage {
   query: string;
+  loading = false;
   remainingRequests: number;
   resultCount: number;
   results: GitUser[];
@@ -28,15 +29,16 @@ export class SearchPage {
     }
 
     if (args.requestParams) {
-      console.log('getting items...');
+      this.loading = true;
       await this.getItems(...args.requestParams);
-      console.log('done');
+      this.loading = false;
     }
 
     this.scrollToPage(args.currentPage);
   }
 
   async getItems(page: number, itemsToGet: number, prepend: boolean) {
+    this.loading = true;
     const res = await this.githubSvc
       .searchUsers(
         this.query,
@@ -87,7 +89,9 @@ export class SearchPage {
       return;
     }
     this.query = query;
+    this.loading = true;
     const res = await this.getItems(1, this.usersPerPage, false);
+    this.loading = false;
     this.resultCount = (res.body as any).total_count;
     if (this.results) {
       await this.content.scrollToTop();

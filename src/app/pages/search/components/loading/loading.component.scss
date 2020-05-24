@@ -1,0 +1,24 @@
+#circle {
+  background: var(--ion-color-medium);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+ion-card {
+  height: 175px;
+}
+
+ion-card-header {
+  display: flex;
+}
+
+.card-footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  ion-col {
+    display: flex;
+  }
+}
