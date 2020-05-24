@@ -1,7 +1,6 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { GithubService, GitUser } from 'src/app/shared/services/github.service';
-import { take } from 'rxjs/operators';
-import { IonContent, IonInfiniteScroll } from '@ionic/angular';
+import { IonContent } from '@ionic/angular';
 import { PaginationOutput } from '../../components/pagination/pagination.component';
 import { ToastService } from 'src/app/shared/services/toast.service';
 import { BehaviorSubject } from 'rxjs';
@@ -86,27 +85,10 @@ export class SearchPage {
       this.toastSvc.makeToast(error.message);
       return error;
     }
-
-    /**
-     * This takes care of a 'bug' where the github api returns less items than it was asked for.
-     * It usually happens when there aren't many results (~300).
-     */
-    // if (itemsToGet && items.length < itemsToGet) {
-    //   const pt1 = await this.githubSvc
-    //     .searchUsers(this.query, page - 1, this.usersPerPage)
-    //     .pipe(take(1))
-    //     .toPromise();
-    //   const pt2 = await this.githubSvc
-    //     .searchUsers(this.query, page, this.usersPerPage)
-    //     .pipe(take(1))
-    //     .toPromise();
-    //   items = (pt1.body as any).items.concat((pt2.body as any).items);
-    // }
   }
 
-  // To-do: debounce search button
   async search(query: string) {
-    if (this.query && this.query === query) {
+    if ((this.query && this.query === query) || this.loading) {
       return;
     }
     this.query = query;

@@ -26,7 +26,7 @@ import { environment } from 'src/environments/environment';
     StatusBar,
     SplashScreen,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    { provide: ORIGIN, useValue: 'http://localhost:5001' }, // For emulating functions locally
+    // { provide: ORIGIN, useValue: 'http://localhost:5001' }, // For emulating functions locally
   ],
   bootstrap: [AppComponent]
 })

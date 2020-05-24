@@ -1,5 +1,5 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { Observable, Subscription } from 'rxjs';
 export interface PaginationOutput {
   currentPage: number;
   requestParams?: [number, number, boolean];
@@ -11,14 +11,14 @@ export interface PaginationOutput {
   templateUrl: './pagination.component.html',
   styleUrls: ['./pagination.component.scss'],
 })
-export class PaginationComponent implements OnInit {
+export class PaginationComponent implements OnInit, OnDestroy {
   @Input() numItems: number;
   @Input() itemTotal: number;
   @Input() itemsPerPage: number;
   @Input() stepSize: number;
   @Input() maxItems: number;
   @Input() completeNavigation$: Observable<void>;
-  // To-do: Add input for scroll events subject
+  sub: Subscription;
   @Output() navigate: EventEmitter<PaginationOutput> = new EventEmitter();
   targetPage: number;
   pagesNavigated: number[];
@@ -40,9 +40,13 @@ export class PaginationComponent implements OnInit {
         : Math.ceil(this.maxItems / this.itemsPerPage);
     this.lastBucketIndex = Math.ceil(this.lastPage / this.stepSize) - 1;
 
-    this.completeNavigation$.subscribe(_ => {
+    this.sub = this.completeNavigation$.subscribe(_ => {
       this.changePage();
     });
+  }
+
+  ngOnDestroy() {
+    this.sub.unsubscribe();
   }
 
   changePage() {
