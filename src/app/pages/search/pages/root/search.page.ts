@@ -37,6 +37,13 @@ export class SearchPage {
     this.scrollToPage(args.currentPage);
   }
 
+  private isEmpty(obj) {
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) { return false; }
+    }
+    return true;
+  }
+
   async getItems(page: number, itemsToGet: number, prepend: boolean) {
     this.loading = true;
 
@@ -45,6 +52,11 @@ export class SearchPage {
       page,
       itemsToGet || this.usersPerPage
     );
+
+    if (this.isEmpty(res)) {
+      alert('There was a problem getting your results');
+      return;
+    }
     const users = res.users as GitUser[];
     this.remainingRequests = res.remaining;
 
@@ -70,6 +82,8 @@ export class SearchPage {
     } else {
       this.results = this.results ? this.results.concat(users) : users;
     }
+
+    console.log(this.results.length);
 
     return res;
   }
