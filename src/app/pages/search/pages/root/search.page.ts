@@ -39,45 +39,36 @@ export class SearchPage {
 
   async getItems(page: number, itemsToGet: number, prepend: boolean) {
     this.loading = true;
-    const res = await this.githubSvc
-      .searchUsers(
-        this.query,
-        page,
-        itemsToGet || this.usersPerPage
-      )
-      .pipe(take(1))
-      .toPromise();
-    let items = (res.body as any).items as GitUser[];
-    this.remainingRequests = +res.headers.get('X-RateLimit-Remaining');
+
+    const res = await this.githubSvc.searchUsers(
+      this.query,
+      page,
+      itemsToGet || this.usersPerPage
+    );
+    const users = res.users as GitUser[];
+    this.remainingRequests = res.remaining;
 
     /**
      * This takes care of a 'bug' where the github api returns less items than it was asked for.
      * It usually happens when there aren't many results (~300).
      */
-    if (itemsToGet && items.length < itemsToGet) {
-      const pt1 = await this.githubSvc
-        .searchUsers(this.query, page - 1, this.usersPerPage)
-        .pipe(take(1))
-        .toPromise();
-      const pt2 = await this.githubSvc
-        .searchUsers(this.query, page, this.usersPerPage)
-        .pipe(take(1))
-        .toPromise();
-      items = (pt1.body as any).items.concat((pt2.body as any).items);
-    }
-
-    try {
-      const info = await this.githubSvc.getNotableInfo(items);
-      items.forEach((user, index) => user.info = info[index]);
-    } catch {
-      console.log('There was an issue while getting the users info');
-    }
+    // if (itemsToGet && items.length < itemsToGet) {
+    //   const pt1 = await this.githubSvc
+    //     .searchUsers(this.query, page - 1, this.usersPerPage)
+    //     .pipe(take(1))
+    //     .toPromise();
+    //   const pt2 = await this.githubSvc
+    //     .searchUsers(this.query, page, this.usersPerPage)
+    //     .pipe(take(1))
+    //     .toPromise();
+    //   items = (pt1.body as any).items.concat((pt2.body as any).items);
+    // }
 
     if (prepend) {
-      this.results.unshift(...items);
+      this.results.unshift(...users);
       this.results = [...new Set(this.results)]; // removes duplicates
     } else {
-      this.results = this.results ? this.results.concat(items) : items;
+      this.results = this.results ? this.results.concat(users) : users;
     }
 
     return res;
@@ -92,14 +83,15 @@ export class SearchPage {
     this.loading = true;
     const res = await this.getItems(1, this.usersPerPage, false);
     this.loading = false;
-    this.resultCount = (res.body as any).total_count;
+    this.resultCount = res.resultCount;
     if (this.results) {
       await this.content.scrollToTop();
     }
   }
 
   scrollToPage(page: number) {
-    return this.content.scrollToPoint(0,
+    return this.content.scrollToPoint(
+      0,
       this.itemHeight * ((page - 1) * this.usersPerPage),
       2000
     );
