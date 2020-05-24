@@ -1,6 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { GithubService, GitUser } from 'src/app/shared/services/github.service';
-import { IonContent } from '@ionic/angular';
+import { IonContent, LoadingController } from '@ionic/angular';
 import { PaginationOutput } from '../../components/pagination/pagination.component';
 import { ToastService } from 'src/app/shared/services/toast.service';
 import { BehaviorSubject } from 'rxjs';
@@ -26,7 +26,8 @@ export class SearchPage {
 
   constructor(
     private githubSvc: GithubService,
-    private toastSvc: ToastService
+    private toastSvc: ToastService,
+    private loadingCtrl: LoadingController
   ) {}
 
   async onNavigate(args: PaginationOutput) {
@@ -36,9 +37,14 @@ export class SearchPage {
     }
 
     if (args.requestParams) {
+      const loading = await this.loadingCtrl.create({
+        message: 'Getting more users...',
+      });
+      await loading.present();
       this.loading = true;
       const res = await this.getItems(...args.requestParams);
       this.loading = false;
+      loading.dismiss();
       if (!res) {
         this.results = copy;
         return;
