@@ -31,14 +31,19 @@ export class SearchPage {
   ) {}
 
   async onNavigate(args: PaginationOutput) {
+    const copy = this.results;
     if (args.refresh) {
       this.results = [];
     }
 
     if (args.requestParams) {
       this.loading = true;
-      await this.getItems(...args.requestParams);
+      const res = await this.getItems(...args.requestParams);
       this.loading = false;
+      if (!res) {
+        this.results = copy;
+        return;
+      }
       this.onComplete$.next();
     }
 
@@ -75,8 +80,6 @@ export class SearchPage {
       } else {
         this.results = this.results ? this.results.concat(users) : users;
       }
-
-      console.log(this.results.length);
 
       return res;
     } catch (error) {
